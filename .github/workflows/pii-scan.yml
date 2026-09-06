@@ -1,0 +1,8 @@
+name: pii-scan
+on: [push, pull_request]
+jobs:
+  pii:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash tools/check_pii.sh --all

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69,<82"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "onchain-volume-tracker"
+version = "0.1.0"
+description = "Track onchain DeFi volume across chains, detect trends, report to Discord"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+    "tabulate>=0.9",
+]
+
+[project.scripts]
+tracker = "tracker.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

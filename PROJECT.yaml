@@ -1,0 +1,27 @@
+version: 1
+project:
+  name: onchain-volume-tracker
+  slug: onchain-volume-tracker
+  status: building
+repository:
+  provider: github
+  repo: 0x-m-dev/onchain-volume-tracker
+  default_branch: main
+architecture:
+  language: python
+  framework: cli
+  frontend: null
+database:
+  engine: sqlite
+services:
+  app:
+    type: worker
+deployment:
+  provider: null
+  production_url: null
+  preview_url: null
+discord:
+  deploy_log: true
+  alerts: ops-alerts
+spec:
+  path: SPEC.md

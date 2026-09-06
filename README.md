@@ -9,6 +9,7 @@ Public repo: `0x-m-dev/onchain-volume-tracker`
 
 Added a static GitHub Pages landing under `docs/` with the last live volume
 snapshot (top chains, $7.38B 24h volume). Pages source is `main` `/docs`.
+Verified: Pages status `built`, preview returns HTTP 200.
 Scheduling and Discord webhook delivery stay off.
 
 ## Preview

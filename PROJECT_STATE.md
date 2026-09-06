@@ -6,6 +6,7 @@ CLI that shows where onchain DeFi volume is growing or declining using free data
 ## Current state
 - Public repo: `0x-m-dev/onchain-volume-tracker` on `main`.
 - Static GitHub Pages landing lives in `docs/` (snapshot from 2026-09-06 live run).
+- Preview verified: https://0x-m-dev.github.io/onchain-volume-tracker/ (HTTP 200, status `built`).
 - Five regression tests pass.
 - Live collection stored 466 chains, 8,190 protocols, 50 DEX pairs; ~$7.38B 24h volume.
 - Scheduling, webhook delivery, and launchd are not enabled.
@@ -24,4 +25,4 @@ CLI that shows where onchain DeFi volume is growing or declining using free data
 - None for Pages preview. Isolated DeFiLlama HTTP 500s are skipped by the collector.
 
 ## Last verified
-2026-09-06 16:27 PDT
+2026-09-06 16:29 PDT

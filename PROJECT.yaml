@@ -19,7 +19,7 @@ services:
 deployment:
   provider: github-pages
   production_url: null
-  preview_url: null
+  preview_url: https://0x-m-dev.github.io/onchain-volume-tracker/
 discord:
   deploy_log: true
   alerts: ops-alerts

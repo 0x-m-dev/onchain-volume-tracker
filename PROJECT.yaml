@@ -2,7 +2,7 @@ version: 1
 project:
   name: onchain-volume-tracker
   slug: onchain-volume-tracker
-  status: building
+  status: preview
 repository:
   provider: github
   repo: 0x-m-dev/onchain-volume-tracker
@@ -17,7 +17,7 @@ services:
   app:
     type: worker
 deployment:
-  provider: null
+  provider: github-pages
   production_url: null
   preview_url: null
 discord:

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Onchain Volume Tracker</title>
+  <meta name="description" content="CLI that tracks onchain DeFi volume and surfaces chain-level trend changes from free APIs.">
+  <style>
+    :root {
+      --bg: #07090c;
+      --panel: #10151c;
+      --line: #243042;
+      --text: #e7eef8;
+      --muted: #8ea0b5;
+      --up: #3dde9a;
+      --down: #ff6b7a;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(125, 211, 252, 0.12), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    main { max-width: 880px; margin: 0 auto; padding: 48px 20px 72px; }
+    .kicker {
+      color: var(--accent);
+      font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); letter-spacing: -0.04em; margin: 12px 0 10px; }
+    .lede { color: var(--muted); max-width: 58ch; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 32px 0;
+    }
+    .stat, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    .stat { padding: 16px; }
+    .stat b {
+      display: block;
+      font: 700 1.45rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .stat span { color: var(--muted); font-size: 12px; }
+    .panel { padding: 8px 0; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 16px; text-align: left; font-size: 14px; }
+    th { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+    td:nth-child(2), td:nth-child(3), th:nth-child(2), th:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; }
+    tr + tr td { border-top: 1px solid var(--line); }
+    .up { color: var(--up); }
+    .down { color: var(--down); }
+    pre {
+      margin-top: 28px;
+      background: #0b1016;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      overflow-x: auto;
+      color: #d7e6f7;
+      font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .links { display: flex; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
+    a { color: var(--accent); }
+    footer { margin-top: 36px; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="kicker">0x-m-dev / CLI</p>
+    <h1>Onchain Volume Tracker</h1>
+    <p class="lede">
+      Python CLI that pulls free DeFiLlama and DexScreener data, stores history in SQLite,
+      and ranks chains by volume, growth, and decline. No API keys for v1.
+    </p>
+    <section class="stats" aria-label="Last live snapshot">
+      <div class="stat"><b>$7.38B</b><span>24h DEX volume (19 chains with volume)</span></div>
+      <div class="stat"><b>466</b><span>chains stored</span></div>
+      <div class="stat"><b>8,190</b><span>protocols stored</span></div>
+      <div class="stat"><b>50</b><span>DEX pairs stored</span></div>
+    </section>
+    <section class="panel">
+      <table>
+        <thead>
+          <tr><th>Chain</th><th>24h volume</th><th>24h change</th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+    <pre>python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+make test
+tracker run</pre>
+    <p class="links">
+      <a href="https://github.com/0x-m-dev/onchain-volume-tracker">GitHub repo</a>
+      <a href="https://github.com/0x-m-dev/onchain-volume-tracker#run--verify">Run / verify</a>
+    </p>
+    <footer>Snapshot from a live collector run on 2026-09-06 16:14 PDT. Static GitHub Pages preview; scheduling is off.</footer>
+  </main>
+  <script>
+    const rows = [
+      ["Solana", 1960574882.81, 4.2],
+      ["BSC", 1637386970.96, 12.55],
+      ["Robinhood Chain", 1612673901.98, -14.66],
+      ["Ethereum", 836934801.79, -47.49],
+      ["Base", 567216376.38, -43.16],
+      ["Hyperliquid L1", 233313678.65, -41.43],
+      ["Polygon", 165146445.65, -4.38],
+      ["Arbitrum", 112626463.10, -50.04],
+      ["Avalanche", 86591211.22, -42.47],
+      ["Monad", 56594629.76, -0.8],
+      ["Sui", 46076415.00, 19.34],
+      ["Tron", 41850851.00, -11.64]
+    ];
+    const money = n => n >= 1e9 ? `$${(n/1e9).toFixed(2)}B` : `$${(n/1e6).toFixed(1)}M`;
+    document.getElementById("rows").innerHTML = rows.map(([name, vol, ch]) => {
+      const cls = ch > 0 ? "up" : "down";
+      const sign = ch > 0 ? "+" : "";
+      return `<tr><td>${name}</td><td>${money(vol)}</td><td class="${cls}">${sign}${ch.toFixed(1)}%</td></tr>`;
+    }).join("");
+  </script>
+</body>
+</html>

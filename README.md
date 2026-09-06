@@ -7,9 +7,13 @@ Public repo: `0x-m-dev/onchain-volume-tracker`
 
 ## What changed
 
-Promoted from a private workspace to a public Studio project. Added repo
-hygiene (PII/README hooks + CI), `PROJECT.yaml`, and an implementation plan.
-Scheduling and Discord webhook delivery stay off until explicitly approved.
+Added a static GitHub Pages landing under `docs/` with the last live volume
+snapshot (top chains, $7.38B 24h volume). Pages source is `main` `/docs`.
+Scheduling and Discord webhook delivery stay off.
+
+## Preview
+
+https://0x-m-dev.github.io/onchain-volume-tracker/
 
 ## Run / verify
 

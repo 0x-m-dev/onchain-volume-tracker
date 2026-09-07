@@ -79,6 +79,21 @@ class TrendAnalyzer:
         ]
         top_surge = sorted(surge, key=lambda t: t["price_change_24h"], reverse=True)[:self.top_n]
 
+        # FOMO surge: tokens in an active retail-FOMO phase (sudden inflow).
+        # Signature: real volume + sharp positive move + heavy buy pressure +
+        # sane liquidity, biased toward chains FOMO-style retail apps support.
+        fomo_chains = {"solana", "base", "bsc", "bnb", "ethereum", "monad"}
+        fomo_surge = [
+            t for t in real
+            if (t.get("volume_24h") or 0) >= (floor * 4)
+            and (t.get("liquidity") or 0) >= (floor * 0.5)
+            and (t.get("price_change_24h") or 0) >= 15
+            and (t.get("buy_ratio") or 0) >= 0.55
+            and (t.get("chain") or "").casefold() in fomo_chains
+        ]
+        fomo_surge.sort(key=lambda t: (t.get("volume_24h") or 0), reverse=True)
+        fomo_surge = fomo_surge[:self.top_n]
+
         # Where money flows: memecoin 24h volume aggregated by chain
         chain_flow: dict[str, dict] = {}
         for t in real:
@@ -134,6 +149,7 @@ class TrendAnalyzer:
             "active_tokens": len(real),
             "top_volume": top_volume,
             "top_surge": top_surge,
+            "fomo_surge": fomo_surge,
             "chain_flow": chain_flow_rows,
             "tvl_heating": tvl_ranked[:self.top_n],
             "tvl_by_value": tvl_by_value[:self.top_n],

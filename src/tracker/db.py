@@ -68,8 +68,12 @@ CREATE TABLE IF NOT EXISTS memecoin_metrics (
     volume_24h REAL,
     price_change_24h REAL,
     txns_24h INTEGER,
+    buys_24h INTEGER,
+    sells_24h INTEGER,
+    buy_ratio REAL,
     liquidity REAL,
     market_cap REAL,
+    source TEXT,
     fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -199,8 +203,9 @@ def store_memecoin_metrics(conn, tokens: list[dict]):
         conn.executemany("""
             INSERT INTO memecoin_metrics
                 (token_address, symbol, name, chain, price_usd, volume_24h,
-                 price_change_24h, txns_24h, liquidity, market_cap)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 price_change_24h, txns_24h, buys_24h, sells_24h, buy_ratio,
+                 liquidity, market_cap, source)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, [
             (
                 t.get("token_address"),
@@ -211,8 +216,12 @@ def store_memecoin_metrics(conn, tokens: list[dict]):
                 t.get("volume_24h"),
                 t.get("price_change_24h"),
                 t.get("txns_24h"),
+                t.get("buys_24h"),
+                t.get("sells_24h"),
+                t.get("buy_ratio"),
                 t.get("liquidity"),
                 t.get("market_cap"),
+                t.get("source"),
             )
             for t in tokens
         ])

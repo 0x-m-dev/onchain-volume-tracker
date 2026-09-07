@@ -146,6 +146,23 @@ def format_memecoin_cli_report(analysis: dict) -> str:
         )
     lines.append("")
 
+    # FOMO retail-surge watch
+    fomo = analysis.get("fomo_surge", [])
+    lines.append("-" * 60)
+    lines.append("  ⚡ FOMO RETAIL SURGE WATCH (volume + buy pressure + sharp move)")
+    lines.append("-" * 60)
+    if fomo:
+        for i, t in enumerate(fomo[:10], 1):
+            ratio = f"buy {t.get('buy_ratio', 0):.0%}" if t.get("buy_ratio") else "buy n/a"
+            src = " 🆕" if t.get("source") == "new-listing" else ""
+            lines.append(
+                f"  {i:2d}. {t.get('symbol','?'):8s} {t.get('chain',''):10s} "
+                f"{_money_fmt(t.get('volume_24h')):>9s} {_pct(t.get('price_change_24h')):>8s}  {ratio}{src}"
+            )
+    else:
+        lines.append("  No tokens currently in an active FOMO surge phase.")
+    lines.append("")
+
     # Top surge
     lines.append("-" * 60)
     lines.append("  🚀 HOTTEST GAINERS (24h price)")
@@ -224,6 +241,21 @@ def format_memecoin_markdown_report(analysis: dict) -> str:
             f"- **{t.get('symbol','?')}** ({t.get('chain','')}): {_pct(t.get('price_change_24h'))}"
             f" 24h, vol {_money_fmt(t.get('volume_24h'))}"
         )
+    lines.append("")
+
+    fomo = analysis.get("fomo_surge", [])
+    lines.append("### ⚡ FOMO retail surge watch")
+    lines.append("")
+    if fomo:
+        for t in fomo[:10]:
+            ratio = f"buy {t.get('buy_ratio', 0):.0%}" if t.get("buy_ratio") else "buy n/a"
+            src = " 🆕new" if t.get("source") == "new-listing" else ""
+            lines.append(
+                f"- **{t.get('symbol','?')}** ({t.get('chain','')}): {_money_fmt(t.get('volume_24h'))}"
+                f" vol, {_pct(t.get('price_change_24h'))} 24h, {ratio}{src}"
+            )
+    else:
+        lines.append("No tokens currently in an active FOMO surge phase.")
     lines.append("")
 
     lines.append("### 🏗️ Memecoin infra TVL (by TVL)")

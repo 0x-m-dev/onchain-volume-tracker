@@ -151,13 +151,16 @@ def test_memecoin_analysis_chain_flow_and_rankings(tmp_path, monkeypatch):
     tokens = [
         {"token_address": "a", "symbol": "PEPE", "name": "Pepe", "chain": "ethereum",
          "price_usd": 1, "volume_24h": 5_000_000, "price_change_24h": 10.0,
-         "txns_24h": 100, "liquidity": 2_000_000, "market_cap": 1e9},
+         "txns_24h": 100, "buys_24h": 55, "sells_24h": 45, "buy_ratio": 0.55,
+         "liquidity": 2_000_000, "market_cap": 1e9, "source": None},
         {"token_address": "b", "symbol": "WIF", "name": "Wif", "chain": "solana",
          "price_usd": 2, "volume_24h": 8_000_000, "price_change_24h": 300.0,
-         "txns_24h": 100, "liquidity": 3_000_000, "market_cap": 2e9},
+         "txns_24h": 100, "buys_24h": 90, "sells_24h": 10, "buy_ratio": 0.9,
+         "liquidity": 3_000_000, "market_cap": 2e9, "source": "new-listing"},
         {"token_address": "c", "symbol": "DUST", "name": "Dust", "chain": "solana",
          "price_usd": 0, "volume_24h": 1_000, "price_change_24h": 5.0,
-         "txns_24h": 1, "liquidity": 100, "market_cap": 1},  # below floor
+         "txns_24h": 1, "buys_24h": 1, "sells_24h": 0, "buy_ratio": 1.0,
+         "liquidity": 100, "market_cap": 1, "source": None},  # below floor
     ]
     with get_db(config) as conn:
         store_memecoin_metrics(conn, tokens)
@@ -169,6 +172,8 @@ def test_memecoin_analysis_chain_flow_and_rankings(tmp_path, monkeypatch):
     assert analysis["active_tokens"] == 2  # DUST excluded by floor
     assert analysis["top_volume"][0]["symbol"] == "WIF"
     assert analysis["top_surge"][0]["symbol"] == "WIF"
+    # WIF: vol>=4*floor, liq>=half, +300% >=15, buy_ratio .9>=.55, solana -> in
+    assert {t["symbol"] for t in analysis["fomo_surge"]} == {"WIF"}
     flows = {r["chain"]: r for r in analysis["chain_flow"]}
     assert flows["solana"]["volume"] == 8_000_000
     assert flows["ethereum"]["volume"] == 5_000_000
@@ -189,6 +194,9 @@ def test_memecoin_report_contains_sections():
         "top_surge": [{"symbol": "WIF", "name": "Wif", "chain": "solana",
                        "volume_24h": 8_000_000, "price_change_24h": 300.0,
                        "liquidity": 3e6, "market_cap": 2e9}],
+        "fomo_surge": [{"symbol": "WIF", "name": "Wif", "chain": "solana",
+                        "volume_24h": 8_000_000, "price_change_24h": 300.0,
+                        "buy_ratio": 0.9, "liquidity": 3e6, "source": "new-listing"}],
         "tvl_by_value": [{"name": "PumpSwap", "category": "Dexs", "tvl": 339e6, "change_7d": 2.0}],
         "top_holders": [],
         "holders_note": "public RPC rate-limited",
@@ -196,6 +204,8 @@ def test_memecoin_report_contains_sections():
     report = format_memecoin_cli_report(analysis)
     assert "WHERE MONEY IS FLOWING" in report
     assert "TOP MEMECOINS BY 24h VOLUME" in report
+    assert "FOMO RETAIL SURGE WATCH" in report
     assert "TOP HOLDERS" in report
     assert "PumpSwap" in report
     assert "PEPE" in report
+    assert "WIF" in report

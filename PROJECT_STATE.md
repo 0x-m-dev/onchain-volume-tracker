@@ -15,10 +15,18 @@ what's heating up in volume/TVL, and top wallets.
   - Money-flow by chain, top memecoins by volume & 24h surge, memecoin-infra TVL
     (launchpads / meme protocols, bridge/RWA excluded).
   - Top-holder "wallets" via Solana public RPC (best-effort, graceful on 429).
-  - New `memecoin_metrics` table + `holders.py` module.
+  - **FOMO retail-surge watch:** tokens in an active retail-FOMO phase (volume +
+    price + buy-pressure signature) on retail-app chains. Verified live: caught
+    NVIDOG (solana, +428%, 74% buy, new-listing). POPCAT's +1219% correctly
+    excluded (buy ratio below threshold).
+  - New `memecoin_metrics` table (+ buys/sells/buy_ratio/source) + `holders.py` module.
+- **FOMO app research:** fomo.family is non-custodial (Privy smart wallets) but
+  publishes NO public API (APIs.io: "agent readiness 0/100, human only"). Its
+  trader leaderboard/feed is auth-gated. Tracking "their traders" by name isn't
+  feasible free/keyless; the on-chain surge signal is the accessible proxy.
 - **15 tests pass** (5 original + 10 new memecoin/analysis/report/holder tests).
-- Live smoke-tested: ~124 tokens collected, 26–29 active (vol > $25k); money flow
-  aggregated (bsc/solana/ethereum/robinhood); launchpad TVL listed; holder lookup
+- Live smoke-tested: ~173 tokens collected, 33 active; money flow aggregated
+  (bsc/solana/robinhood/ethereum); FOMO surge watch populated; holder lookup
   returns unavailable + reason when public RPC is rate-limited.
 - Scheduling, webhook delivery, and launchd are not enabled.
 
@@ -27,6 +35,8 @@ what's heating up in volume/TVL, and top wallets.
 - Memecoin infra TVL is ranked by TVL value (7d change is often null in `/protocols`).
 - Top wallets = top holders via free Solana RPC only; EVM holder enumeration is
   intentionally out of scope for the free tier (needs Moralis/Alchemy/Dune).
+- FOMO trader feed is off-limits (no public API); we track FOMO-style retail
+  inflow via on-chain surge signature instead.
 - Channel IDs stay in the local registry only.
 
 ## Next actions
@@ -35,9 +45,12 @@ what's heating up in volume/TVL, and top wallets.
 3. Only then consider webhook delivery and launchd scheduling (needs explicit approval).
 
 ## Blockers
+- **GitHub push blocked:** this box has no GitHub credentials (no `gh`, no
+  token in env/auth/config, no SSH key). Work is committed locally in the clone;
+  a `GITHUB_TOKEN` (or gh auth) is required to push and refresh Pages.
 - Public Solana RPCs frequently return 429/403, so top-holder data is intermittent
   by nature of the free tier. DeFiLlama `/protocols` omits `change_7d` for many
   protocols (shown as n/a).
 
 ## Last verified
-2026-09-07 20:27 UTC
+2026-09-07 20:40 UTC

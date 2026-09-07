@@ -14,6 +14,11 @@ Public repo: `0x-m-dev/onchain-volume-tracker`
   24h gainers, where memecoin volume is concentrating by chain, memecoin
   infrastructure TVL (launchpads / meme protocols), and best-effort top-holder
   "whale wallets" on Solana.
+- **FOMO retail-surge watch:** tokens currently in an active retail-FOMO phase
+  (sharp volume + price move + heavy buy pressure) on the chains retail apps
+  support. FOMO (fomo.family) is non-custodial, so its traders' money moves
+  real tokens that surface here as on-chain surges. FOMO publishes no public
+  API, so this is the on-chain signature of its activity.
 
 ## Run / verify
 

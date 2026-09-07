@@ -262,6 +262,8 @@ class DataCollector:
         h24 = txn.get("h24") or {}
         buys = h24.get("buys", 0) or 0
         sells = h24.get("sells", 0) or 0
+        total_txns = buys + sells
+        buy_ratio = (buys / total_txns) if total_txns else None
         return {
             "token_address": bt.get("address"),
             "symbol": (bt.get("symbol") or fallback_symbol or "").upper(),
@@ -270,9 +272,10 @@ class DataCollector:
             "price_usd": float(pair.get("priceUsd", 0) or 0),
             "volume_24h": float(vol.get("h24", 0) or 0),
             "price_change_24h": float(chg.get("h24", 0) or 0),
-            "txns_24h": int(buys + sells),
+            "txns_24h": int(total_txns),
             "buys_24h": int(buys),
             "sells_24h": int(sells),
+            "buy_ratio": round(buy_ratio, 3) if buy_ratio is not None else None,
             "liquidity": float(liq.get("usd", 0) or 0),
             "market_cap": float(pair.get("marketCap", 0) or 0),
             "pair_address": pair.get("pairAddress", ""),

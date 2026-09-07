@@ -8,7 +8,11 @@ from datetime import datetime
 from .config import Config
 from .collector import DataCollector
 from .analyzer import TrendAnalyzer
-from .report import format_cli_report, send_to_discord
+from .report import (
+    format_cli_report, format_markdown_report,
+    format_memecoin_cli_report, format_memecoin_markdown_report,
+    send_discord_report, send_to_discord,
+)
 from .db import init_db
 
 logging.basicConfig(
@@ -27,12 +31,13 @@ def cmd_run(config: Config):
     data = collector.collect_all()
     print(f"✅ Collected {len(data.get('chains', []))} chains, "
           f"{len(data.get('protocols', []))} protocols, "
-          f"{len(data.get('dex_pairs', []))} dex pairs")
+          f"{len(data.get('dex_pairs', []))} dex pairs, "
+          f"{len(data.get('memecoins', []))} memecoin tokens")
 
     # Store to DB
     stats = collector.store_to_db(data)
     print(f"📊 Stored: {stats['chains']} chains, {stats['protocols']} protocols, "
-          f"{stats['dex_pairs']} dex pairs")
+          f"{stats['dex_pairs']} dex pairs, {stats.get('memecoins', 0)} memecoin tokens")
 
     # Analyze
     print("📈 Analyzing trends...")
@@ -43,10 +48,16 @@ def cmd_run(config: Config):
     report = format_cli_report(analysis)
     print(report)
 
+    # Memecoin activity report
+    meme_analysis = analyzer.get_memecoin_analysis(data.get("meme_tvl", []))
+    print(format_memecoin_cli_report(meme_analysis))
+
     # Send to Discord if configured
     if config.webhook_url:
         print("📡 Sending to Discord...")
-        success = send_to_discord(analysis, config)
+        combined = format_markdown_report(analysis) + "\n\n" + \
+                   format_memecoin_markdown_report(meme_analysis)
+        success = send_discord_report(combined, config.webhook_url)
         if success:
             print("✅ Report sent to Discord")
         else:
@@ -54,7 +65,27 @@ def cmd_run(config: Config):
     else:
         print("💡 Tip: Set DEFLAMA_WEBHOOK_URL to send reports to Discord")
 
-    return analysis
+    return {"chain": analysis, "meme": meme_analysis}
+
+
+def cmd_memes(config: Config):
+    """Memecoin-focused collection + activity report."""
+    print("🐸 Collecting memecoin activity...")
+    collector = DataCollector(config)
+    memecoins = collector.collect_memecoins()
+    print(f"✅ Collected {len(memecoins)} memecoin tokens")
+
+    from .db import get_db, store_memecoin_metrics
+    with get_db(config) as conn:
+        store_memecoin_metrics(conn, memecoins)
+
+    print("🏗️  Checking memecoin infrastructure TVL...")
+    meme_tvl = collector.collect_tvl_heating()
+
+    analyzer = TrendAnalyzer(config)
+    meme_analysis = analyzer.get_memecoin_analysis(meme_tvl)
+    print(format_memecoin_cli_report(meme_analysis))
+    return meme_analysis
 
 
 def cmd_trends(config: Config):
@@ -145,6 +176,9 @@ def main():
     # top command
     subparsers.add_parser("top", help="Top 10 by volume/growth/decline")
 
+    # memes command
+    subparsers.add_parser("memes", help="Memecoin activity: volume, surge, money flow, TVL heat, top holders")
+
     args = parser.parse_args()
 
     # Load config
@@ -152,6 +186,8 @@ def main():
 
     if args.command == "run":
         cmd_run(config)
+    elif args.command == "memes":
+        cmd_memes(config)
     elif args.command == "trends":
         cmd_trends(config)
     elif args.command == "chains":

@@ -9,7 +9,8 @@ from urllib.parse import quote
 
 from .config import Config
 from .db import (
-    store_chain_metrics, store_protocols, store_dex_pairs, get_db,
+    store_chain_metrics, store_protocols, store_dex_pairs,
+    store_memecoin_metrics, get_db,
 )
 
 logger = logging.getLogger(__name__)
@@ -104,6 +105,9 @@ class DeFiLlamaClient:
 class DexScreenerClient:
     """Client for DexScreener API."""
 
+    # Profiles/boosts live at the API root, NOT under /latest/dex/
+    ROOT_URL = "https://api.dexscreener.com"
+
     def __init__(self, config: Config):
         self.config = config
         self.session = requests.Session()
@@ -111,8 +115,21 @@ class DexScreenerClient:
         self.rate_limit_delay = config.rate_limit_delay
 
     def _fetch(self, endpoint: str) -> Optional[dict]:
-        """Fetch data from DexScreener API."""
+        """Fetch data from DexScreener API (under /latest/dex/)."""
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        try:
+            logger.info(f"Fetching {url}")
+            resp = self.session.get(url, timeout=self.config.request_timeout)
+            resp.raise_for_status()
+            time.sleep(self.rate_limit_delay)
+            return resp.json()
+        except requests.RequestException as e:
+            logger.error(f"Error fetching {url}: {e}")
+            return None
+
+    def _fetch_root(self, endpoint: str) -> Optional[dict]:
+        """Fetch from the DexScreener API root (token-profiles, token-boosts)."""
+        url = f"{self.ROOT_URL}/{endpoint.lstrip('/')}"
         try:
             logger.info(f"Fetching {url}")
             resp = self.session.get(url, timeout=self.config.request_timeout)
@@ -139,6 +156,20 @@ class DexScreenerClient:
         data = self._fetch(f"tokens/{address}")
         if isinstance(data, dict) and isinstance(data.get("pairs"), list):
             return data["pairs"]
+        return []
+
+    def get_token_profiles(self) -> list[dict]:
+        """Get latest token profiles (new listings / trending submissions)."""
+        data = self._fetch_root("token-profiles/latest/v1")
+        if isinstance(data, list):
+            return data
+        return []
+
+    def get_token_boosts(self) -> list[dict]:
+        """Get latest boosted tokens (paid promo, attention signal)."""
+        data = self._fetch_root("token-boosts/latest/v1")
+        if isinstance(data, list):
+            return data
         return []
 
 
@@ -210,7 +241,122 @@ class DataCollector:
                 break
         result["dex_pairs"] = all_pairs
 
+        # 6. Collect memecoin activity heat
+        logger.info("Collecting memecoin activity heat...")
+        result["memecoins"] = self.collect_memecoins()
+
+        # 7. Collect memecoin infrastructure TVL (launchpads / meme protocols)
+        logger.info("Collecting memecoin infrastructure TVL...")
+        result["meme_tvl"] = self.collect_tvl_heating(protocols)
+
         return result
+
+    @staticmethod
+    def _pair_to_token(pair: dict, fallback_symbol: str = "") -> dict:
+        """Normalize a DexScreener pair into a compact token-metrics dict."""
+        bt = pair.get("baseToken") or {}
+        vol = pair.get("volume") or {}
+        chg = pair.get("priceChange") or {}
+        liq = pair.get("liquidity") or {}
+        txn = pair.get("txns") or {}
+        h24 = txn.get("h24") or {}
+        buys = h24.get("buys", 0) or 0
+        sells = h24.get("sells", 0) or 0
+        return {
+            "token_address": bt.get("address"),
+            "symbol": (bt.get("symbol") or fallback_symbol or "").upper(),
+            "name": bt.get("name", ""),
+            "chain": pair.get("chainId", ""),
+            "price_usd": float(pair.get("priceUsd", 0) or 0),
+            "volume_24h": float(vol.get("h24", 0) or 0),
+            "price_change_24h": float(chg.get("h24", 0) or 0),
+            "txns_24h": int(buys + sells),
+            "buys_24h": int(buys),
+            "sells_24h": int(sells),
+            "liquidity": float(liq.get("usd", 0) or 0),
+            "market_cap": float(pair.get("marketCap", 0) or 0),
+            "pair_address": pair.get("pairAddress", ""),
+            "dex": pair.get("dexId", ""),
+            "url": pair.get("url", ""),
+        }
+
+    def collect_memecoins(self) -> list[dict]:
+        """Collect memecoin activity: canonical watchlist tokens + new listings.
+
+        Returns a list of per-token metric dicts (best pair per token).
+        """
+        best: dict = {}
+
+        def absorb(pair, fallback_symbol):
+            tok = self._pair_to_token(pair, fallback_symbol)
+            addr = tok["token_address"]
+            if not addr:
+                return
+            # Keep the strongest pair for a given token (liquidity, then volume)
+            strength = (tok["liquidity"], tok["volume_24h"])
+            if addr not in best or strength > best[addr][1]:
+                best[addr] = (tok, strength)
+
+        # 1. Canonical per-token metrics from watchlist symbol searches
+        for symbol in self.config.watch_memecoins:
+            pairs = self.dexscreener.search_pairs(symbol)
+            for p in pairs:
+                bt = p.get("baseToken") or {}
+                if (bt.get("symbol") or "").upper() != symbol.upper():
+                    continue
+                absorb(p, symbol)
+
+        # 2. New-listings / boosted attention signals (bounded, best pair each)
+        attention = []
+        attention.extend(self.dexscreener.get_token_profiles() or [])
+        attention.extend(self.dexscreener.get_token_boosts() or [])
+        for prof in attention[:10]:
+            addr = prof.get("tokenAddress")
+            chain = prof.get("chainId")
+            if not addr or addr in best:
+                continue
+            pairs = self.dexscreener.get_pairs_by_token(addr)
+            if not pairs:
+                continue
+            top = max(pairs, key=lambda p: float((p.get("volume") or {}).get("h24", 0) or 0))
+            tok = self._pair_to_token(top, (top.get("baseToken") or {}).get("symbol", ""))
+            if tok["token_address"] and tok["symbol"]:
+                tok["source"] = "new-listing"
+                best[tok["token_address"]] = (tok, (tok["liquidity"], tok["volume_24h"]))
+
+        tokens = [v[0] for v in best.values()]
+        tokens.sort(key=lambda t: t["volume_24h"], reverse=True)
+        return tokens
+
+    def collect_tvl_heating(self, protocols: Optional[list[dict]] = None) -> list[dict]:
+        """Find memecoin-infrastructure protocols (launchpads / meme) heating up in TVL."""
+        if protocols is None:
+            protocols = self.defilama.get_protocols()
+        cats = {c.casefold() for c in self.config.meme_categories}
+        # Keyword hits must exclude infra bridges / RWA funds that merely share a
+        # substring (e.g. "PumpBTC" bridge, RWA "Funds").
+        keywords = ("pump", "meme", "four.meme")
+        excluded_cats = {"bridge", "rwa"}
+        out = []
+        for p in protocols:
+            cat = (p.get("category") or "").casefold()
+            name = (p.get("name") or "").lower()
+            if cat in cats:
+                pass
+            elif any(k in name for k in keywords) and cat not in excluded_cats:
+                pass
+            else:
+                continue
+            out.append({
+                "name": p.get("name", ""),
+                "category": p.get("category", ""),
+                "chain": p.get("chain", ""),
+                "tvl": p.get("tvl"),
+                "change_1d": p.get("change_1d"),
+                "change_7d": p.get("change_7d"),
+                "mcap": p.get("mcap"),
+            })
+        return out
 
     def store_to_db(self, data: dict) -> dict:
         """Store collected data to SQLite."""
@@ -242,5 +388,14 @@ class DataCollector:
                     stats["dex_pairs"] = len(pairs)
                 except Exception as e:
                     logger.warning(f"Error storing DEX pairs: {e}")
+
+            # Store memecoin activity snapshots
+            memecoins = data.get("memecoins", [])
+            if memecoins:
+                try:
+                    store_memecoin_metrics(conn, memecoins)
+                    stats["memecoins"] = len(memecoins)
+                except Exception as e:
+                    logger.warning(f"Error storing memecoin metrics: {e}")
 
         return stats

@@ -80,6 +80,176 @@ def format_cli_report(analysis: dict) -> str:
     return "\n".join(lines)
 
 
+def _money_fmt(value) -> str:
+    """Compact USD formatting: 1.2M / 340K / 900."""
+    if value is None:
+        return "n/a"
+    try:
+        v = float(value or 0)
+    except (TypeError, ValueError):
+        return "n/a"
+    if v >= 1e9:
+        return f"${v/1e9:.2f}B"
+    if v >= 1e6:
+        return f"${v/1e6:.2f}M"
+    if v >= 1e3:
+        return f"${v/1e3:.1f}K"
+    return f"${v:.0f}"
+
+
+def _pct(value, signed: bool = True) -> str:
+    if value is None:
+        return "n/a"
+    try:
+        v = float(value or 0)
+    except (TypeError, ValueError):
+        return "n/a"
+    if abs(v) < 0.05:
+        return "flat"
+    return f"{v:+.1f}%" if signed else f"{v:.1f}%"
+
+
+def format_memecoin_cli_report(analysis: dict) -> str:
+    """Format the memecoin activity analysis as a CLI report."""
+    lines = []
+    lines.append("=" * 60)
+    lines.append("  🐸 MEMECOIN ACTIVITY")
+    lines.append("=" * 60)
+    lines.append(f"  Generated: {analysis['analyzed_at']}")
+    lines.append(f"  Active tokens (24h vol > $25k): {analysis['active_tokens']}")
+    if analysis.get("summary"):
+        lines.append(f"  📊 {analysis['summary']}")
+    lines.append("")
+
+    # Where money is flowing
+    lines.append("-" * 60)
+    lines.append("  💰 WHERE MONEY IS FLOWING (memecoin vol by chain)")
+    lines.append("-" * 60)
+    for i, row in enumerate(analysis.get("chain_flow", [])[:8], 1):
+        top = f"  (top: {row['top_symbol']})" if row.get("top_symbol") else ""
+        lines.append(
+            f"  {i:2d}. {row['chain']:14s} {_money_fmt(row['volume']):>9s}  "
+            f"{row['token_count']} tokens {top}"
+        )
+    lines.append("")
+
+    # Top by volume
+    lines.append("-" * 60)
+    lines.append("  🔥 TOP MEMECOINS BY 24h VOLUME")
+    lines.append("-" * 60)
+    for i, t in enumerate(analysis.get("top_volume", [])[:10], 1):
+        src = " 🆕" if t.get("source") == "new-listing" else ""
+        lines.append(
+            f"  {i:2d}. {t.get('symbol','?'):8s} {t.get('chain',''):10s} "
+            f"{_money_fmt(t.get('volume_24h')):>9s}  {_pct(t.get('price_change_24h'))}"
+            f"  mc {_money_fmt(t.get('market_cap'))}{src}"
+        )
+    lines.append("")
+
+    # Top surge
+    lines.append("-" * 60)
+    lines.append("  🚀 HOTTEST GAINERS (24h price)")
+    lines.append("-" * 60)
+    for i, t in enumerate(analysis.get("top_surge", [])[:10], 1):
+        lines.append(
+            f"  {i:2d}. {t.get('symbol','?'):8s} {t.get('chain',''):10s} "
+            f"{_pct(t.get('price_change_24h')):>9s}  vol {_money_fmt(t.get('volume_24h'))}"
+        )
+    lines.append("")
+
+    # TVL in memecoin infrastructure
+    lines.append("-" * 60)
+    lines.append("  🏗️  MEMECOIN INFRA TVL (launchpads / meme protocols)")
+    lines.append("-" * 60)
+    for i, p in enumerate(analysis.get("tvl_by_value", [])[:8], 1):
+        lines.append(
+            f"  {i:2d}. {p.get('name','?'):20s} {_money_fmt(p.get('tvl')):>9s} "
+            f"7d {_pct(p.get('change_7d'))}  ({p.get('category','')})"
+        )
+    lines.append("")
+
+    # Top holders / wallets
+    holders = analysis.get("top_holders", [])
+    lines.append("-" * 60)
+    if holders:
+        sym = (analysis.get("holders_token") or {}).get("symbol", "?")
+        lines.append(f"  👛 TOP HOLDERS — ${sym} on Solana")
+        lines.append("-" * 60)
+        for i, h in enumerate(holders[:10], 1):
+            lines.append(
+                f"  {i:2d}. {h.get('wallet','')[:22]}…  "
+                f"{h.get('amount_human', 0):,.0f}"
+            )
+        lines.append("")
+    else:
+        lines.append("  👛 TOP HOLDERS: unavailable")
+        lines.append(f"     {analysis.get('holders_note') or 'no data'}")
+        lines.append("")
+
+    lines.append("=" * 60)
+    return "\n".join(lines)
+
+
+def format_memecoin_markdown_report(analysis: dict) -> str:
+    """Format the memecoin activity analysis as markdown for Discord."""
+    lines = []
+    lines.append("## 🐸 Memecoin Activity")
+    lines.append(f"*Generated: {analysis['analyzed_at']}*")
+    lines.append(f"*Active tokens (24h vol > $25k): {analysis['active_tokens']}*")
+    if analysis.get("summary"):
+        lines.append(f"**Summary:** {analysis['summary']}")
+    lines.append("")
+
+    lines.append("### 💰 Where money is flowing")
+    lines.append("")
+    for row in analysis.get("chain_flow", [])[:8]:
+        top = f" — top {row['top_symbol']}" if row.get("top_symbol") else ""
+        lines.append(f"- **{row['chain']}**: {_money_fmt(row['volume'])} ({row['token_count']} tokens){top}")
+    lines.append("")
+
+    lines.append("### 🔥 Top memecoins by 24h volume")
+    lines.append("")
+    for t in analysis.get("top_volume", [])[:10]:
+        src = " 🆕new" if t.get("source") == "new-listing" else ""
+        lines.append(
+            f"- **{t.get('symbol','?')}** ({t.get('chain','')}): {_money_fmt(t.get('volume_24h'))}"
+            f" vol, {_pct(t.get('price_change_24h'))} 24h, mc {_money_fmt(t.get('market_cap'))}{src}"
+        )
+    lines.append("")
+
+    lines.append("### 🚀 Hottest gainers (24h)")
+    lines.append("")
+    for t in analysis.get("top_surge", [])[:10]:
+        lines.append(
+            f"- **{t.get('symbol','?')}** ({t.get('chain','')}): {_pct(t.get('price_change_24h'))}"
+            f" 24h, vol {_money_fmt(t.get('volume_24h'))}"
+        )
+    lines.append("")
+
+    lines.append("### 🏗️ Memecoin infra TVL (by TVL)")
+    lines.append("")
+    for p in analysis.get("tvl_by_value", [])[:8]:
+        lines.append(
+            f"- **{p.get('name','?')}** ({p.get('category','')}): "
+            f"{_money_fmt(p.get('tvl'))} TVL, {_pct(p.get('change_7d'))} 7d"
+        )
+    lines.append("")
+
+    holders = analysis.get("top_holders", [])
+    lines.append("### 👛 Top holders")
+    lines.append("")
+    if holders:
+        sym = (analysis.get("holders_token") or {}).get("symbol", "?")
+        lines.append(f"**${sym}** on Solana:")
+        for h in holders[:10]:
+            lines.append(f"- `{h.get('wallet','')}` — {h.get('amount_human',0):,.0f}")
+    else:
+        lines.append(f"Unavailable — {analysis.get('holders_note') or 'no data'}")
+    lines.append("")
+
+    return "\n".join(lines)
+
+
 def format_markdown_report(analysis: dict) -> str:
     """Format analysis data as markdown for Discord."""
     lines = []

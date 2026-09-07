@@ -58,10 +58,27 @@ CREATE TABLE IF NOT EXISTS dex_pairs (
     fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS memecoin_metrics (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token_address TEXT,
+    symbol TEXT,
+    name TEXT,
+    chain TEXT,
+    price_usd REAL,
+    volume_24h REAL,
+    price_change_24h REAL,
+    txns_24h INTEGER,
+    liquidity REAL,
+    market_cap REAL,
+    fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_chain_metrics_timestamp ON chain_metrics(timestamp);
 CREATE INDEX IF NOT EXISTS idx_protocol_metrics_timestamp ON protocol_metrics(timestamp);
 CREATE INDEX IF NOT EXISTS idx_chain_metrics_chain_slug ON chain_metrics(chain_slug);
 CREATE INDEX IF NOT EXISTS idx_dex_pairs_fetched_at ON dex_pairs(fetched_at);
+CREATE INDEX IF NOT EXISTS idx_memecoin_metrics_fetched_at ON memecoin_metrics(fetched_at);
+CREATE INDEX IF NOT EXISTS idx_memecoin_metrics_symbol ON memecoin_metrics(symbol);
 """
 
 
@@ -172,6 +189,47 @@ def store_dex_pairs(conn, pairs: list[dict]):
             )
             for p in pairs
         ])
+
+
+def store_memecoin_metrics(conn, tokens: list[dict]):
+    """Bulk store memecoin activity snapshots."""
+    if not tokens:
+        return
+    with conn:
+        conn.executemany("""
+            INSERT INTO memecoin_metrics
+                (token_address, symbol, name, chain, price_usd, volume_24h,
+                 price_change_24h, txns_24h, liquidity, market_cap)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, [
+            (
+                t.get("token_address"),
+                t.get("symbol", ""),
+                t.get("name", ""),
+                t.get("chain", ""),
+                t.get("price_usd"),
+                t.get("volume_24h"),
+                t.get("price_change_24h"),
+                t.get("txns_24h"),
+                t.get("liquidity"),
+                t.get("market_cap"),
+            )
+            for t in tokens
+        ])
+
+
+def get_latest_memecoins(conn) -> list[dict]:
+    """Get the most recent snapshot of every tracked memecoin token."""
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT m.*
+        FROM memecoin_metrics m
+        WHERE m.id IN (
+            SELECT MAX(id) FROM memecoin_metrics GROUP BY token_address
+        )
+        ORDER BY m.volume_24h DESC
+    """)
+    return [dict(row) for row in cur.fetchall()]
 
 
 def get_chain_trends(conn, chain_slug: str, limit: int = 30) -> list[dict]:

@@ -1,20 +1,19 @@
 # Onchain Volume Tracker
 
-Python CLI that pulls free DeFiLlama and DexScreener volume data, stores
-history in SQLite, and prints chain-level trend reports.
+Python CLI that pulls free DeFiLlama and DexScreener data, stores history in
+SQLite, and prints trend reports — with a dedicated **memecoin activity**
+tracker for where retail money is flowing.
 
 Public repo: `0x-m-dev/onchain-volume-tracker`
 
-## What changed
+## Highlights
 
-Added a static GitHub Pages landing under `docs/` with the last live volume
-snapshot (top chains, $7.38B 24h volume). Pages source is `main` `/docs`.
-Verified: Pages status `built`, preview returns HTTP 200.
-Scheduling and Discord webhook delivery stay off.
-
-## Preview
-
-https://0x-m-dev.github.io/onchain-volume-tracker/
+- **Chain / protocol trends** from DeFiLlama: top chains by volume, top
+  gainers/decliners, anomalies.
+- **Memecoin activity** (`tracker memes`): top memecoins by 24h volume, hottest
+  24h gainers, where memecoin volume is concentrating by chain, memecoin
+  infrastructure TVL (launchpads / meme protocols), and best-effort top-holder
+  "whale wallets" on Solana.
 
 ## Run / verify
 
@@ -23,16 +22,29 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
 make test
-tracker run
+tracker run          # full chain + memecoin report
+tracker memes        # memecoin-only report
 ```
 
-`tracker run` writes `tracker.db` (gitignored). Optional Discord delivery:
+`tracker run` writes `tracker.db` (gitignored). Commands:
+`tracker run`, `tracker memes`, `tracker trends`, `tracker chains`, `tracker top`.
 
-```bash
-export DEFLAMA_WEBHOOK_URL=   # leave unset to print locally
-```
+## Memecoin module
 
-Commands: `tracker run`, `tracker trends`, `tracker chains`, `tracker top`.
+- **Sources (free, no keys):** DexScreener search + token-profiles/token-boosts
+  (new listings & attention signals), DeFiLlama `/protocols` for launchpad /
+  meme-category TVL.
+- **Top holders / wallets:** free tier uses Solana's public RPC
+  `getTokenLargestAccounts` against a small pool of public endpoints. Public
+  RPCs are often rate-limited (HTTP 429), so this is best-effort and degrades
+  gracefully. EVM-chain holder enumeration requires a paid provider
+  (Moralis/Alchemy/Dune) and is intentionally out of scope.
+- **Config:** the memecoin watchlist, category set, volume floor, holder count,
+  and Solana RPC pool are all overridable via env (see `.env.example`).
+
+## Preview
+
+https://0x-m-dev.github.io/onchain-volume-tracker/
 
 ## Notes
 

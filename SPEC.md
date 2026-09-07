@@ -24,6 +24,17 @@ A Python CLI tool that aggregates onchain DeFi volume data from free APIs (DeFiL
 - Stores all raw data in SQLite for historical analysis
 - Rate-limits respect of API constraints (no key = conservative polling)
 
+### 1b. Memecoin Activity Module
+- DexScreener `search` over a configurable memecoin watchlist, plus
+  `token-profiles/latest/v1` and `token-boosts/latest/v1` for new-listing /
+  attention signals (deduped to one best pair per token)
+- Where money flows: memecoin 24h volume aggregated by chain
+- What's heating up: top memecoins by volume and by 24h price surge, plus
+  memecoin-infrastructure TVL (DeFiLlama `Launchpad`/`Meme` categories and
+  `pump`/`meme`-named protocols, excluding bridges/RWA)
+- Top wallets: best-effort Solana top holders via public RPC
+  `getTokenLargestAccounts` (graceful when rate-limited); EVM needs a paid provider
+
 ### 2. Trend Analysis Engine
 - Calculates volume deltas: 24h vs 7d rolling averages per chain
 - Calculates volume deltas: 24h vs 7d rolling averages per category
@@ -71,7 +82,8 @@ onchain-volume-tracker/
 
 ## CLI Commands
 ```
-tracker run              # Fetch latest data, analyze, generate report
+tracker run              # Fetch latest data, analyze, generate full report (chain + memecoin)
+tracker memes            # Memecoin-only: volume, surge, money flow, TVL, top holders
 tracker trends           # Show historical trends from SQLite
 tracker chains           # List all tracked chains with current stats
 tracker top              # Top 10 chains by volume / growth / decline
@@ -132,12 +144,30 @@ CREATE TABLE dex_pairs (
     sell_volume_24h REAL,
     fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE memecoin_metrics (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token_address TEXT,
+    symbol TEXT,
+    name TEXT,
+    chain TEXT,
+    price_usd REAL,
+    volume_24h REAL,
+    price_change_24h REAL,
+    txns_24h INTEGER,
+    liquidity REAL,
+    market_cap REAL,
+    fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 ## Acceptance Criteria
 - [ ] CLI runs and produces a formatted report
 - [ ] DeFiLlama data is fetched correctly (chains, protocols, fees)
 - [ ] DexScreener data is fetched correctly (top pairs)
+- [ ] Memecoin module ranks tokens by volume/surge and aggregates money flow by chain
+- [ ] Memecoin infrastructure TVL (launchpads) is captured
+- [ ] Top-holder (wallet) lookup degrades gracefully when public RPC is rate-limited
 - [ ] SQLite stores data persistently with trend history
 - [ ] Trend analysis correctly identifies top movers and anomalies
 - [ ] Discord webhook delivers formatted report

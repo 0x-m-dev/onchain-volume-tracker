@@ -83,7 +83,8 @@ onchain-volume-tracker/
 ## CLI Commands
 ```
 tracker run              # Fetch latest data, analyze, generate full report (chain + memecoin)
-tracker memes            # Memecoin-only: volume, surge, money flow, TVL, top holders
+tracker memes            # Memecoin-only: volume, surge, money flow, TVL, top holders, followed wallets
+tracker wallet <ADDR>    # Show a trader wallet's recent on-chain buy/sell activity
 tracker trends           # Show historical trends from SQLite
 tracker chains           # List all tracked chains with current stats
 tracker top              # Top 10 chains by volume / growth / decline

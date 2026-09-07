@@ -203,6 +203,24 @@ def format_memecoin_cli_report(analysis: dict) -> str:
         lines.append(f"     {analysis.get('holders_note') or 'no data'}")
         lines.append("")
 
+    # Followed-trader wallets
+    wr = analysis.get("wallet_report")
+    if wr:
+        lines.append("-" * 60)
+        lines.append("  👛 FOLLOWED TRADER WALLETS")
+        lines.append("-" * 60)
+        for w in wr:
+            lines.append(f"  {w['wallet'][:20]}…  txs:{w['trades']}")
+            if w["flow"]:
+                for row in w["flow"][:4]:
+                    lines.append(
+                        f"      {row['mint'][:10]}…  +{row['bought']:,.0f} / -{row['sold']:,.0f} "
+                        f"({row['n_buys']}/{row['n_sells']})"
+                    )
+            elif w["note"] and w["trades"] == 0:
+                lines.append(f"      ({w['note']})")
+        lines.append("")
+
     lines.append("=" * 60)
     return "\n".join(lines)
 
@@ -278,6 +296,19 @@ def format_memecoin_markdown_report(analysis: dict) -> str:
     else:
         lines.append(f"Unavailable — {analysis.get('holders_note') or 'no data'}")
     lines.append("")
+
+    wr = analysis.get("wallet_report")
+    if wr:
+        lines.append("### 👛 Followed trader wallets")
+        lines.append("")
+        for w in wr:
+            lines.append(f"**{w['wallet'][:20]}…** — {w['trades']} txs")
+            for row in w["flow"][:4]:
+                lines.append(
+                    f"- {row['mint'][:12]}…: +{row['bought']:,.0f} / -{row['sold']:,.0f} "
+                    f"({row['n_buys']} buys / {row['n_sells']} sells)"
+                )
+        lines.append("")
 
     return "\n".join(lines)
 

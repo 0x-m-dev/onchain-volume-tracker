@@ -72,6 +72,9 @@ class Config:
     # Floor (USD) on 24h volume/liquidity before a memecoin counts as "real" activity
     meme_volume_floor: float = field(default=25000.0)
 
+    # Trader wallet addresses to follow on-chain (from the fomo app's leaderboard)
+    wallet_watchlist: list[str] = field(default_factory=list)
+
     @classmethod
     def from_env(cls) -> "Config":
         """Load configuration from environment."""
@@ -104,4 +107,8 @@ class Config:
                 "https://api.mainnet-beta.solana.com,https://solana-rpc.publicnode.com,https://solana.drpc.org",
             ).split(","),
             meme_volume_floor=float(os.getenv("TRACKER_MEME_VOLUME_FLOOR", "25000")),
+            wallet_watchlist=[
+                a.strip() for a in
+                os.getenv("TRACKER_WALLETS", "").split(",") if a.strip()
+            ],
         )

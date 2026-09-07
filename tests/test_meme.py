@@ -180,6 +180,91 @@ def test_memecoin_analysis_chain_flow_and_rankings(tmp_path, monkeypatch):
     assert analysis["chain_flow"][0]["chain"] == "solana"
 
 
+# --- wallets ----------------------------------------------------------------
+
+from tracker.wallets import (
+    build_rpcs, fetch_wallet_activity, summarize_activity, _decode_transaction,
+)
+
+
+def test_decode_transaction_computes_net_changes():
+    wallet = "WALLET"
+    parsed = {
+        "blockTime": 1700000000,
+        "meta": {
+            "preTokenBalances": [
+                {"owner": wallet, "mint": "AAA", "uiTokenAmount": {"uiAmount": 0, "decimals": 9}},
+                {"owner": "other", "mint": "ZZZ", "uiTokenAmount": {"uiAmount": 999, "decimals": 9}},
+            ],
+            "postTokenBalances": [
+                {"owner": wallet, "mint": "AAA", "uiTokenAmount": {"uiAmount": 1000, "decimals": 9}},
+                {"owner": wallet, "mint": "BBB", "uiTokenAmount": {"uiAmount": 50, "decimals": 6}},
+            ],
+        },
+    }
+    changes = _decode_transaction(parsed, wallet)
+    by_mint = {c["mint"]: c for c in changes}
+    assert by_mint["AAA"]["direction"] == "bought"
+    assert by_mint["AAA"]["amount"] == 1000
+    assert by_mint["BBB"]["direction"] == "bought"
+    assert by_mint["BBB"]["amount"] == 50
+
+
+def test_fetch_wallet_activity_parses_signatures_and_txs(monkeypatch):
+    import tracker.wallets as w
+    calls = {}
+
+    def fake_rpc(rpc, method, params, timeout):
+        if method == "getSignaturesForAddress":
+            return {"result": [{"signature": "SIG1"}, {"signature": "SIG2"}]}, None
+        # getParsedTransaction
+        parsed = {
+            "blockTime": 1700000000,
+            "meta": {
+                "preTokenBalances": [{"owner": "WALLET", "mint": "AAA", "uiTokenAmount": {"uiAmount": 0, "decimals": 9}}],
+                "postTokenBalances": [{"owner": "WALLET", "mint": "AAA", "uiTokenAmount": {"uiAmount": 5, "decimals": 9}}],
+            },
+        }
+        return {"result": parsed}, None
+
+    monkeypatch.setattr(w, "_rpc_call", fake_rpc)
+    trades, note = fetch_wallet_activity("WALLET", ["https://rpc"], limit=2, timeout=5)
+    assert len(trades) == 2
+    assert trades[0]["token_changes"][0]["direction"] == "bought"
+    assert trades[0]["token_changes"][0]["amount"] == 5
+
+
+def test_summarize_activity_aggregates_buy_sell():
+    trades = [
+        {"token_changes": [{"mint": "AAA", "amount": 100, "decimals": 9, "direction": "bought"}]},
+        {"token_changes": [{"mint": "AAA", "amount": 40, "decimals": 9, "direction": "sold"}]},
+        {"token_changes": [{"mint": "BBB", "amount": 7, "decimals": 6, "direction": "bought"}]},
+    ]
+    rows = summarize_activity(trades)
+    by = {r["mint"]: r for r in rows}
+    assert by["AAA"]["bought"] == 100
+    assert by["AAA"]["sold"] == 40
+    assert by["AAA"]["n_buys"] == 1
+    assert by["AAA"]["n_sells"] == 1
+    assert by["BBB"]["bought"] == 7
+
+
+def test_build_rpcs_prefers_helius_key(monkeypatch):
+    from tracker.config import Config
+    monkeypatch.setenv("HELIUS_API_KEY", "abc")
+    rpcs = build_rpcs(Config(solana_rpcs=["https://fallback"]))
+    assert rpcs[0] == "https://mainnet.helius-rpc.com/?api-key=abc"
+    monkeypatch.delenv("HELIUS_API_KEY", raising=False)
+
+
+def test_get_signatures_rate_limited_returns_empty(monkeypatch):
+    import tracker.wallets as w
+    monkeypatch.setattr(w, "_rpc_call", lambda *a, **k: (None, "HTTP 429"))
+    sigs, note = w.get_recent_signatures("WALLET", ["https://rpc1", "https://rpc2"], limit=5)
+    assert sigs == []
+    assert "429" in note
+
+
 # --- report ----------------------------------------------------------------
 
 def test_memecoin_report_contains_sections():

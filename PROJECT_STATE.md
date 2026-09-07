@@ -24,10 +24,14 @@ what's heating up in volume/TVL, and top wallets.
   publishes NO public API (APIs.io: "agent readiness 0/100, human only"). Its
   trader leaderboard/feed is auth-gated. Tracking "their traders" by name isn't
   feasible free/keyless; the on-chain surge signal is the accessible proxy.
-- **15 tests pass** (5 original + 10 new memecoin/analysis/report/holder tests).
-- Live smoke-tested: ~173 tokens collected, 33 active; money flow aggregated
-  (bsc/solana/robinhood/ethereum); FOMO surge watch populated; holder lookup
-  returns unavailable + reason when public RPC is rate-limited.
+- **Trader wallet tracking added:** `tracker wallet <ADDR>` + `TRACKER_WALLETS`
+  watchlist decodes a wallet's buy/sell per token from Solana RPC parsed txs.
+  Public no-key RPCs block this datacenter (429/403/401/400), so a **free Helius
+  key** (`HELIUS_API_KEY`) is the reliable path. User supplies the addresses
+  (visible in the fomo app) + the free key.
+- **20 tests pass** (5 original + 15 new).
+- Live smoke-tested: ~173 tokens collected, 33 active; FOMO surge watch populated;
+  `tracker wallet` runs and degrades gracefully without a key.
 - Scheduling, webhook delivery, and launchd are not enabled.
 
 ## Decisions
@@ -53,4 +57,4 @@ what's heating up in volume/TVL, and top wallets.
   protocols (shown as n/a).
 
 ## Last verified
-2026-09-07 20:40 UTC
+2026-09-07 20:55 UTC

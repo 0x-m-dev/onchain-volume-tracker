@@ -19,6 +19,10 @@ Public repo: `0x-m-dev/onchain-volume-tracker`
   support. FOMO (fomo.family) is non-custodial, so its traders' money moves
   real tokens that surface here as on-chain surges. FOMO publishes no public
   API, so this is the on-chain signature of its activity.
+- **Trader wallet tracking** (`tracker wallet <addr>`): follow specific FOMO
+  trader wallets on-chain — pull their recent signatures and decode buy/sell
+  per token via Solana RPC (free; a free Helius key is the reliable path since
+  public no-key RPCs block datacenter IPs). Watchlist via `TRACKER_WALLETS`.
 
 ## Run / verify
 

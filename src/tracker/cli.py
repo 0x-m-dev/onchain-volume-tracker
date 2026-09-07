@@ -84,8 +84,59 @@ def cmd_memes(config: Config):
 
     analyzer = TrendAnalyzer(config)
     meme_analysis = analyzer.get_memecoin_analysis(meme_tvl)
+
+    # Followed-trader wallet activity
+    if config.wallet_watchlist:
+        print("👛 Checking followed-trader wallets...")
+        wallet_report = build_wallet_report(config)
+        if wallet_report:
+            meme_analysis["wallet_report"] = wallet_report
+
     print(format_memecoin_cli_report(meme_analysis))
     return meme_analysis
+
+
+def build_wallet_report(config: Config):
+    """Pull on-chain activity for each followed wallet."""
+    from .wallets import build_rpcs, fetch_wallet_activity, summarize_activity
+    rpcs = build_rpcs(config)
+    out = []
+    for addr in config.wallet_watchlist:
+        trades, note = fetch_wallet_activity(addr, rpcs, limit=15, timeout=10)
+        out.append({
+            "wallet": addr,
+            "note": note,
+            "trades": len(trades),
+            "flow": summarize_activity(trades),
+        })
+    return out
+
+
+def cmd_wallet(config: Config, address: str, limit: int = 15):
+    """Show a single trader wallet's recent on-chain activity."""
+    from .wallets import build_rpcs, fetch_wallet_activity, summarize_activity
+    rpcs = build_rpcs(config)
+    print(f"👛 Wallet: {address}")
+    print(f"  RPC pool: {[r.split('/')[2] for r in rpcs]}")
+    trades, note = fetch_wallet_activity(address, rpcs, limit=limit, timeout=10)
+    print(f"  Recent txs decoded: {len(trades)}  ({note})")
+    print("=" * 60)
+    if not trades:
+        print(f"  ⚠️  No parsed activity — {note}")
+        return
+    for t in trades[:limit]:
+        sig = t["signature"][:14]
+        changes = ", ".join(
+            f"{c['direction']} {c['amount']:,.0f} {c['mint'][:8]}…" for c in t["token_changes"]
+        ) or "no token change"
+        print(f"  {t['time'][:16]}  {sig}…  {changes}")
+    print("")
+    print("  📊 NET FLOW (by token):")
+    for row in summarize_activity(trades):
+        print(
+            f"    {row['mint'][:12]}…  bought {row['bought']:,.0f} ({row['n_buys']}x) / "
+            f"sold {row['sold']:,.0f} ({row['n_sells']}x)"
+        )
 
 
 def cmd_trends(config: Config):
@@ -179,6 +230,13 @@ def main():
     # memes command
     subparsers.add_parser("memes", help="Memecoin activity: volume, surge, money flow, TVL heat, top holders")
 
+    # wallet command
+    wallet_p = subparsers.add_parser(
+        "wallet", help="Show a trader wallet's recent on-chain activity"
+    )
+    wallet_p.add_argument("address", help="Solana wallet address to inspect")
+    wallet_p.add_argument("--limit", type=int, default=15, help="Max txs to decode")
+
     args = parser.parse_args()
 
     # Load config
@@ -188,6 +246,8 @@ def main():
         cmd_run(config)
     elif args.command == "memes":
         cmd_memes(config)
+    elif args.command == "wallet":
+        cmd_wallet(config, args.address, args.limit)
     elif args.command == "trends":
         cmd_trends(config)
     elif args.command == "chains":

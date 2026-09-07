@@ -42,10 +42,12 @@ what's heating up in volume/TVL, and top wallets.
   intentionally out of scope for the free tier (needs Moralis/Alchemy/Dune).
 - FOMO trader feed is off-limits (no public API); we track FOMO-style retail
   inflow via on-chain surge signature instead.
-- **Deploy-log automation:** every push to `main` auto-queues a deploy-log entry
-  via the repo's local `.git/hooks/post-push`; a no_agent watchdog cron
-  (`deploy_watchdog.py`, every 5m) delivers queued entries to `#deploy-log`.
-  Studio hooks (pre-commit/pre-push PII gate) also installed via `tools/install-hooks.sh`.
+- **Deploy-log automation:** a no_agent watchdog cron (`deploy_watchdog.py`, every
+  5m, deliver to `#deploy-log`) polls `origin/main` via `git fetch` and auto-posts
+  any new commits. NOTE: git's `post-push` hook does NOT fire in this environment
+  (verified in isolation), so the polling watchdog replaces it. Cron scripts live in
+  `/opt/data/scripts/` (cron resolves there, not `.hermes/scripts`).
+  Studio hooks (pre-commit/pre-push PII gate) installed via `tools/install-hooks.sh`.
 - Channel IDs stay in the local registry only (not hardcoded in tracked files).
 
 ## Next actions

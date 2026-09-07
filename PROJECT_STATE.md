@@ -43,11 +43,13 @@ what's heating up in volume/TVL, and top wallets.
 - FOMO trader feed is off-limits (no public API); we track FOMO-style retail
   inflow via on-chain surge signature instead.
 - **Deploy-log automation:** a no_agent watchdog cron (`deploy_watchdog.py`, every
-  5m, deliver to `#deploy-log`) polls `origin/main` via `git fetch` and auto-posts
-  any new commits. NOTE: git's `post-push` hook does NOT fire in this environment
-  (verified in isolation), so the polling watchdog replaces it. Cron scripts live in
-  `/opt/data/scripts/` (cron resolves there, not `.hermes/scripts`).
-  Studio hooks (pre-commit/pre-push PII gate) installed via `tools/install-hooks.sh`.
+  5m, deliver to `#deploy-log`) polls all 5 `0x-m-dev` repos (onchain-volume-tracker,
+  discord-ops, trend-threads, personal-site, job-autopilot-template) via clones in
+  `/opt/data/studio-repos/` and auto-posts any new commits. NOTE: git's `post-push`
+  hook does NOT fire in this environment (verified in isolation), so the polling
+  watchdog replaces it. Cron scripts live in `/opt/data/scripts/`; last-seen SHAs
+  in `~/.hermes/deploy_last_seen.json`. Studio hooks (pre-commit/pre-push PII gate)
+  installed via `tools/install-hooks.sh`.
 - Channel IDs stay in the local registry only (not hardcoded in tracked files).
 
 ## Next actions

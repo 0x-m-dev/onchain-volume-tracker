@@ -7,8 +7,9 @@ what's heating up in volume/TVL, and top wallets.
 
 ## Current state
 - Public repo: `0x-m-dev/onchain-volume-tracker` on `main`.
-- Static GitHub Pages landing lives in `docs/` (snapshot from 2026-09-06 live run).
-- Preview verified: https://0x-m-dev.github.io/onchain-volume-tracker/ (HTTP 200, status `built`).
+- **Pushed:** all work is live on `main` via `gh` (installed to `/opt/data/bin/gh`, authed as `0x-m-dev` via device flow).
+- **GitHub Pages refreshed** with live memecoin + FOMO snapshot (2026-09-07 21:00 UTC): top chains, memecoin money-flow, FOMO retail-surge watch, top memecoins. Verified HTTP 200 + new sections serving.
+- Static GitHub Pages landing lives in `docs/` (source = `/docs` on main).
 - **Upgrade: memecoin activity module added** (this session):
   - `tracker memes` command + memecoin section in `tracker run`.
   - DexScreener watchlist search + token-profiles/token-boosts (new-listing/attention signals).
@@ -49,12 +50,11 @@ what's heating up in volume/TVL, and top wallets.
 3. Only then consider webhook delivery and launchd scheduling (needs explicit approval).
 
 ## Blockers
-- **GitHub push blocked:** this box has no GitHub credentials (no `gh`, no
-  token in env/auth/config, no SSH key). Work is committed locally in the clone;
-  a `GITHUB_TOKEN` (or gh auth) is required to push and refresh Pages.
 - Public Solana RPCs frequently return 429/403, so top-holder data is intermittent
   by nature of the free tier. DeFiLlama `/protocols` omits `change_7d` for many
   protocols (shown as n/a).
+- Wallet-level FOMO trader tracking needs a free Helius key (`HELIUS_API_KEY`)
+  + wallet addresses from the fomo app (`TRACKER_WALLETS`). Not yet configured.
 
 ## Last verified
-2026-09-07 20:55 UTC
+2026-09-07 21:05 UTC

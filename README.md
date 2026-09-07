@@ -60,3 +60,6 @@ https://0x-m-dev.github.io/onchain-volume-tracker/
 - No API keys required for v1.
 - Do not commit `.env`, `tracker.db`, or Discord identifiers.
 - launchd plist in `launchd/` is a template; it is not loaded.
+- **Deploy-log automation:** pushing to `main` auto-posts a commit summary to
+  the Discord `#deploy-log` channel (local post-push hook + watchdog cron).
+  Studio pre-commit/pre-push hooks install via `bash tools/install-hooks.sh`.

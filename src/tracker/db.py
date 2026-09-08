@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS dex_pairs (
 CREATE TABLE IF NOT EXISTS memecoin_metrics (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     token_address TEXT,
+    pair_address TEXT,
     symbol TEXT,
     name TEXT,
     chain TEXT,
@@ -74,6 +75,7 @@ CREATE TABLE IF NOT EXISTS memecoin_metrics (
     liquidity REAL,
     market_cap REAL,
     source TEXT,
+    dex TEXT,
     fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -84,6 +86,15 @@ CREATE INDEX IF NOT EXISTS idx_dex_pairs_fetched_at ON dex_pairs(fetched_at);
 CREATE INDEX IF NOT EXISTS idx_memecoin_metrics_fetched_at ON memecoin_metrics(fetched_at);
 CREATE INDEX IF NOT EXISTS idx_memecoin_metrics_symbol ON memecoin_metrics(symbol);
 """
+
+
+def _migrate(conn):
+    """Idempotently add columns to tables created before they existed."""
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(memecoin_metrics)")}
+    if "pair_address" not in cols:
+        conn.execute("ALTER TABLE memecoin_metrics ADD COLUMN pair_address TEXT")
+    if "dex" not in cols:
+        conn.execute("ALTER TABLE memecoin_metrics ADD COLUMN dex TEXT")
 
 
 @contextmanager
@@ -102,6 +113,8 @@ def get_db(config: Optional[Config] = None):
     conn.execute("PRAGMA foreign_keys = ON")
     # Auto-initialize schema on every connection
     conn.executescript(SCHEMA)
+    # Idempotent column migrations for DBs created before these columns existed
+    _migrate(conn)
     conn.commit()
     try:
         yield conn
@@ -202,13 +215,14 @@ def store_memecoin_metrics(conn, tokens: list[dict]):
     with conn:
         conn.executemany("""
             INSERT INTO memecoin_metrics
-                (token_address, symbol, name, chain, price_usd, volume_24h,
+                (token_address, pair_address, symbol, name, chain, price_usd, volume_24h,
                  price_change_24h, txns_24h, buys_24h, sells_24h, buy_ratio,
-                 liquidity, market_cap, source)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 liquidity, market_cap, source, dex)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, [
             (
                 t.get("token_address"),
+                t.get("pair_address"),
                 t.get("symbol", ""),
                 t.get("name", ""),
                 t.get("chain", ""),
@@ -222,6 +236,7 @@ def store_memecoin_metrics(conn, tokens: list[dict]):
                 t.get("liquidity"),
                 t.get("market_cap"),
                 t.get("source"),
+                t.get("dex"),
             )
             for t in tokens
         ])

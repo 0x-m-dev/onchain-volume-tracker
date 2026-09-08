@@ -72,11 +72,15 @@ def _meme_card(t):
     sym = t.get("symbol") or "?"
     chain = (t.get("chain") or "").lower()
     ca = t.get("token_address") or ""
+    pair = t.get("pair_address") or ""
+    # DexScreener chart URL is keyed by the PAIR address, not the token address.
+    # Fall back to the token address (DexScreener token pages also work) if pair unknown.
+    chart_addr = pair or ca
     nw = '<span class="flag-new">NEW</span>' if t.get("source") == "new-listing" else ""
-    # DexScreener chart link uses the token address: dexscreener.com/{chain}/{ca}
-    ds_url = f"https://dexscreener.com/{chain}/{ca}" if (chain and ca) else "#"
+    ds_url = f"https://dexscreener.com/{chain}/{chart_addr}" if (chain and chart_addr) else "#"
     chg = t.get("price_change_24h")
     chg_html = pct_html(chg)
+    # show the CA on the copy button
     ca_short = (ca[:6] + "…" + ca[-4:]) if len(ca) > 14 else (ca or "-")
     return (
         f'<div class="meme-card">'

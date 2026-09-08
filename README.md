@@ -62,7 +62,8 @@ memecoin infra TVL, and hottest gainers. Every memecoin card links to its
 
 Auto-refresh: `scripts/refresh_site.py --commit` runs a live collection and
 regenerates + pushes `docs/index.html`. An hourly cron drives it (site updates ~
-each hour).
+each hour). Chart links point to the token's primary **DexScreener pair page**
+(chain/pair_address); the copy button copies the contract address.
 
 ## Notes
 

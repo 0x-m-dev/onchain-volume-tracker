@@ -15,46 +15,41 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{color-scheme:dark}
-  body{
-    font-family:var(--sans);background:
+  body{font-family:var(--sans);background:
       radial-gradient(1100px 480px at 82% -12%, rgba(94,196,255,.07), transparent 55%),
-      radial-gradient(900px 420px at -8% 4%, rgba(56,217,150,.05), transparent 55%),
-      var(--bg);
-    color:var(--text);line-height:1.45;min-height:100vh;
-  }
-  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 64px}
+      radial-gradient(900px 420px at -8% 4%, rgba(56,217,150,.05), transparent 55%),var(--bg);
+    color:var(--text);line-height:1.45;min-height:100vh}
+  .wrap{max-width:1200px;margin:0 auto;padding:28px 20px 64px}
   header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
   .kicker{color:var(--accent);font:600 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase}
   h1{font-size:clamp(1.6rem,3.4vw,2.4rem);letter-spacing:-.03em;font-weight:700;margin:8px 0 4px}
-  .sub{color:var(--muted);font-size:14px;max-width:60ch}
+  .sub{color:var(--muted);font-size:14px;max-width:62ch}
   .stamp{font:12px/1.5 var(--mono);color:var(--dim);text-align:right}
   .stamp b{color:var(--muted);font-weight:600}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
   .chip{font:600 11px/1 var(--mono);letter-spacing:.04em;padding:5px 9px;border:1px solid var(--line2);border-radius:999px;color:var(--muted);background:rgba(17,24,33,.6)}
   .chip b{color:var(--text);font-weight:600}
 
-  .grid{display:grid;gap:14px;grid-template-columns:repeat(12,1fr);grid-auto-rows:auto}
-  .tile{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative;overflow:hidden}
-  .tile .tlabel{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:7px;margin-bottom:12px}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(12,1fr)}
+  .tile{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:15px 17px;overflow:hidden}
+  .tlabel{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:7px;margin-bottom:11px}
   .tlabel .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
   .tlabel .dot.g{background:var(--up);box-shadow:0 0 8px var(--up)}
   .tlabel .dot.w{background:var(--warn);box-shadow:0 0 8px var(--warn)}
   .tlabel .dot.p{background:var(--new);box-shadow:0 0 8px var(--new)}
 
-  /* ---- spans ---- */
   .s-hero{grid-column:span 5;grid-row:span 2}
   .s-movers{grid-column:span 4;grid-row:span 2}
   .s-flow{grid-column:span 3;grid-row:span 2}
-  .s-fomo{grid-column:span 6}
-  .s-memes{grid-column:span 6}
-  .s-tvl{grid-column:span 5}
-  .s-hot{grid-column:span 7}
+  .s-fomo{grid-column:span 7}
+  .s-memes{grid-column:span 5}
+  .s-tvl{grid-column:span 4}
+  .s-hot{grid-column:span 8}
 
   .num{font:700 clamp(2rem,4vw,3.1rem)/1 var(--mono);letter-spacing:-.03em}
-  .num small{font:600 13px var(--mono);color:var(--muted);letter-spacing:0}
-  .hero-sub{color:var(--muted);font-size:13px;margin:8px 0 18px}
-  .bars{display:flex;flex-direction:column;gap:9px}
-  .bar-row{display:grid;grid-template-columns:110px 1fr 78px;align-items:center;gap:10px;font:12px/1 var(--mono)}
+  .hero-sub{color:var(--muted);font-size:13px;margin:8px 0 16px}
+  .bars{display:flex;flex-direction:column;gap:8px}
+  .bar-row{display:grid;grid-template-columns:118px 1fr 96px;align-items:center;gap:10px;font:12px/1 var(--mono)}
   .bar-row .bn{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .bar-row .bv{color:var(--muted);text-align:right}
   .track{height:7px;background:#0a0f16;border-radius:6px;overflow:hidden}
@@ -66,53 +61,45 @@
   .mover{padding:8px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .mover+.mover{border-top:1px solid var(--line)}
   .mover .mn{font:600 14px var(--sans)}
-  .mover .mv{font:12px var(--mono);color:var(--muted);white-space:nowrap}
   .mover .md{font:700 15px var(--mono)}
-  .lead{font:700 17px var(--mono)}
 
-  .flow-list{display:flex;flex-direction:column;gap:10px}
+  .flow-list{display:flex;flex-direction:column;gap:11px}
   .flow-item{display:flex;flex-direction:column;gap:5px}
   .flow-item .top{display:flex;justify-content:space-between;align-items:baseline;font:13px var(--mono)}
   .flow-item .cn{color:var(--text);text-transform:capitalize}
-  .flow-item .cv{font-weight:600}
+  .flow-item .cv{font-weight:600;color:var(--up)}
   .flow-item .sub2{color:var(--dim);font-size:11px;font-family:var(--mono)}
 
-  .fomo-row{padding:9px 0;display:grid;grid-template-columns:110px 90px 1fr 90px 70px;gap:10px;align-items:center;font:13px var(--mono)}
-  .fomo-row+.fomo-row{border-top:1px solid var(--line)}
-  .empty{color:var(--dim);font:13px/1.6 var(--sans);padding:10px 0}
-  .tag{font-weight:700;letter-spacing:.01em}
-  .flag-new{color:var(--new);font:600 9px var(--mono);border:1px solid var(--line2);padding:1px 5px;border-radius:5px;margin-left:6px;letter-spacing:.06em}
+  /* memecoin cards: clickable chart + copyable CA */
+  .memes-wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .meme-card{background:#0a0f16;border:1px solid var(--line);border-radius:12px;padding:11px 12px;display:flex;flex-direction:column;gap:8px}
+  .meme-card .row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .meme-card .sym{font:700 15px/1 var(--sans)}
+  .meme-card .chain{font:11px var(--mono);color:var(--dim);text-transform:capitalize}
+  .meme-card .stats{display:flex;justify-content:space-between;gap:8px;font:11px var(--mono);color:var(--muted);flex-wrap:wrap}
+  .meme-card .stats b{color:var(--text);font-weight:600}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:5px;font:600 11px/1 var(--mono);padding:6px 9px;border-radius:8px;text-decoration:none;cursor:pointer;letter-spacing:.02em}
+  .btn.ds{background:rgba(94,196,255,.12);color:var(--accent);border:1px solid rgba(94,196,255,.3)}
+  .btn.ds:hover{background:rgba(94,196,255,.2)}
+  .btn.ca{background:#0e141d;color:var(--muted);border:1px solid var(--line2);max-width:100%;overflow:hidden}
+  .btn.ca:hover{color:var(--text);border-color:#3a4d68}
+  .flag-new{color:var(--new);font:600 9px var(--mono);border:1px solid var(--line2);padding:1px 5px;border-radius:5px;letter-spacing:.06em}
 
-  .meme-row{padding:7px 0;display:grid;grid-template-columns:120px 100px 1fr 90px 80px;gap:10px;align-items:center;font:13px var(--mono)}
-  .meme-row+.meme-row{border-top:1px solid var(--line)}
-  .meme-row .sym{font-weight:700}
-  .meme-row .ch{font:12px var(--mono);color:var(--dim)}
-  .meme-row .mc{font:12px var(--mono);color:var(--dim);text-align:right}
+  .fomo-empty,.empty{color:var(--dim);font:13px/1.6 var(--sans);padding:8px 0}
 
-  .tvl-row{padding:7px 0;display:grid;grid-template-columns:1fr 90px 80px 70px;gap:10px;align-items:center;font:13px var(--mono)}
+  .tvl-row{padding:7px 0;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;align-items:baseline;font:12px var(--mono)}
   .tvl-row+.tvl-row{border-top:1px solid var(--line)}
-  .tvl-row .pn{font-weight:600;color:var(--text)}
-  .tvl-row .pc{font:11px var(--mono);color:var(--dim)}
-
-  .hot-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-  .hot-tag{display:flex;flex-direction:column;gap:3px;background:#0a0f16;border:1px solid var(--line);padding:10px 13px;border-radius:11px;font:12px var(--mono)}
-  .hot-tag .t{font-weight:700;font-size:14px}
-  .hot-tag .s{color:var(--up);font-weight:600}
-  .hot-tag .c{color:var(--dim);font-size:11px}
+  .tvl-row .pn{font-weight:600;color:var(--text);grid-column:1}
+  .tvl-row .pv{color:var(--text);text-align:right;grid-column:1}
+  .tvl-row .pc{color:var(--dim);font-size:11px;grid-column:2;grid-row:1;text-align:right}
+  .tvl-row .sub2{color:var(--dim);font-size:11px;grid-column:2;grid-row:2;text-align:right}
 
   footer{margin-top:22px;color:var(--dim);font:11px/1.7 var(--mono)}
   footer a{color:var(--accent);text-decoration:none}
 
-  @media(max-width:980px){
-    .grid{grid-template-columns:repeat(2,1fr)}
-    .s-hero,.s-movers,.s-flow,.s-fomo,.s-memes,.s-tvl,.s-hot{grid-column:span 2}
-  }
-  @media(max-width:560px){
-    .grid{grid-template-columns:1fr}
-    .s-hero,.s-movers,.s-flow,.s-fomo,.s-memes,.s-tvl,.s-hot{grid-column:span 1}
-    .wrap{padding:20px 14px 48px}
-    .fomo-row,.meme-row{grid-template-columns:1fr 1fr;grid-template-rows:auto}
-  }
+  @media(max-width:1000px){.s-hero,.s-movers,.s-flow,.s-fomo,.s-memes,.s-tvl,.s-hot{grid-column:span 6}.grid{grid-template-columns:repeat(6,1fr)}}
+  @media(max-width:640px){.s-hero,.s-movers,.s-flow,.s-fomo,.s-memes,.s-tvl,.s-hot{grid-column:span 1}.grid{grid-template-columns:1fr}.memes-wrap{grid-template-columns:1fr}.wrap{padding:20px 14px 48px}}
 </style>
 </head>
 <body>
@@ -121,160 +108,76 @@
     <div>
       <div class="kicker">0x-m-dev / onchain pulse</div>
       <h1>Where crypto volume is moving</h1>
-      <p class="sub">Onchain DEX volume, chain movers, memecoin money flow, retail-FOMO surges and memecoin infra TVL — one live snapshot from free data.</p>
+      <p class="sub">Onchain DEX volume, chain movers, memecoin money flow and retail-FOMO surges — from free data. Tap <b>Chart</b> on any memecoin to open its DexScreener page, or copy its contract address into your own scanner.</p>
       <div class="chips">
         <span class="chip">chains <b>466</b></span>
-        <span class="chip">protocols <b>8,200</b></span>
-        <span class="chip">active memecoins <b>41</b></span>
-        <span class="chip">dex pairs <b>50</b></span>
+        <span class="chip">protocols <b>8200</b></span>
+        <span class="chip">active memecoins <b>31</b></span>
       </div>
     </div>
-    <div class="stamp">snapshot<br><b>2026-09-07 21:31 UTC</b></div>
+    <div class="stamp">snapshot<br><b>2026-09-08 03:10 UTC</b></div>
   </header>
 
   <div class="grid">
 
-    <!-- HERO: total volume -->
     <section class="tile s-hero">
       <div class="tlabel"><span class="dot"></span>24h DEX volume — top chains</div>
-      <div class="num" id="totVol">$9.37B</div>
-      <div class="hero-sub">across <span class="up">19</span> chains · <span class="flat">5</span> up · <span class="down">4</span> anomalies</div>
-      <div class="bars" id="heroBars"></div>
+      <div class="num">$9.23B</div>
+      <div class="hero-sub">across <span class="up">10</span> chains · <span class="up">10 up</span> · <span style="color:var(--warn)">4 anomalies</span></div>
+      <div class="bars"><div class="bar-row"><span class="bn">Solana</span><div class="track"><div class="fill sol" style="width:100.0%"></div></div><span class="bv">$2.87B <span class="pct down">-1.1%</span></span></div><div class="bar-row"><span class="bn">Robinhood Chain</span><div class="track"><div class="fill " style="width:52.7%"></div></div><span class="bv">$1.51B <span class="pct up">+0.2%</span></span></div><div class="bar-row"><span class="bn">BSC</span><div class="track"><div class="fill " style="width:45.9%"></div></div><span class="bv">$1.32B <span class="pct down">-10.3%</span></span></div><div class="bar-row"><span class="bn">Ethereum</span><div class="track"><div class="fill " style="width:45.3%"></div></div><span class="bv">$1.30B <span class="pct up">+42.7%</span></span></div><div class="bar-row"><span class="bn">Base</span><div class="track"><div class="fill " style="width:31.4%"></div></div><span class="bv">$902.98M <span class="pct up">+11.9%</span></span></div></div>
     </section>
 
-    <!-- MOVERS -->
     <section class="tile s-movers">
       <div class="tlabel"><span class="dot g"></span>Chain movers (24h)</div>
-      <div style="margin-top:4px">
-        <div class="mover"><span class="mn">Monad</span><span class="md up">+555.3%</span></div>
-        <div class="mover"><span class="mn">Stellar</span><span class="md up">+169.0%</span></div>
-        <div class="mover"><span class="mn">Avalanche</span><span class="md up">+150.0%</span></div>
-        <div class="mover"><span class="mn">Ethereum</span><span class="md up">+42.7%</span></div>
-      </div>
-      <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:6px" class="mover"><span class="mn">Cronos</span><span class="md down">-37.6%</span></div>
-      <div class="mover"><span class="mn">Arbitrum</span><span class="md down">-19.4%</span></div>
-      <div class="mover"><span class="mn">Hyperliquid L1</span><span class="md down">-15.7%</span></div>
+      <div style="margin-top:4px"><div class="mover"><span class="mn">Monad</span><span class="md up">+555.3%</span></div><div class="mover"><span class="mn">Stellar</span><span class="md up">+169.0%</span></div><div class="mover"><span class="mn">Avalanche</span><span class="md up">+150.0%</span></div><div class="mover"><span class="mn">Tron</span><span class="md up">+61.6%</span></div><div class="mover"><span class="mn">Cronos</span><span class="md down">-37.6%</span></div><div class="mover"><span class="mn">Arbitrum</span><span class="md down">-19.4%</span></div><div class="mover"><span class="mn">Hyperliquid L1</span><span class="md down">-15.7%</span></div></div>
     </section>
 
-    <!-- MONEY FLOW -->
     <section class="tile s-flow">
       <div class="tlabel"><span class="dot p"></span>Memecoin money flow</div>
-      <div class="flow-list" id="flowList"></div>
+      <div class="flow-list"><div class="flow-item"><div class="top"><span class="cn">bsc</span><span class="cv up">$5.03M</span></div><div class="track"><div class="fill" style="width:100.0%"></div></div><div class="sub2">2 tokens · top DOGE</div></div><div class="flow-item"><div class="top"><span class="cn">solana</span><span class="cv up">$4.53M</span></div><div class="track"><div class="fill" style="width:89.9%"></div></div><div class="sub2">10 tokens · top POPCAT</div></div><div class="flow-item"><div class="top"><span class="cn">ethereum</span><span class="cv up">$2.13M</span></div><div class="track"><div class="fill" style="width:42.4%"></div></div><div class="sub2">2 tokens · top PEPE</div></div><div class="flow-item"><div class="top"><span class="cn">robinhood</span><span class="cv up">$948.2K</span></div><div class="track"><div class="fill" style="width:18.8%"></div></div><div class="sub2">4 tokens · top NEURON</div></div></div>
     </section>
 
-    <!-- FOMO SURGE -->
-    <section class="tile s-fomo">
-      <div class="tlabel"><span class="dot w"></span>FOMO retail-surge watch</div>
-      <div id="fomoBody"></div>
-    </section>
-
-    <!-- TOP MEMECOINS -->
-    <section class="tile s-memes">
-      <div class="tlabel"><span class="dot g"></span>Top memecoins by volume</div>
-      <div id="memesBody"></div>
-    </section>
-
-    <!-- INFRA TVL -->
     <section class="tile s-tvl">
       <div class="tlabel"><span class="dot"></span>Memecoin infra TVL</div>
-      <div class="tvl-row" style="padding-top:0;border-top:0"><span class="pn">PumpSwap</span><span class="cv" id="tvlTop"></span><span class="pc">Dexs</span><span class="pc">$343.3M</span></div>
-      <div id="tvlBody"></div>
+      <div class="tvl-row" style="padding-top:2px;border-top:0;grid-template-columns:1fr auto">
+        <span class="pn" style="font-size:14px">PumpSwap</span>
+        <span class="pv" style="color:var(--up);font-weight:700">$343.28M</span>
+      </div>
+      <div class="sub2" style="font:11px var(--mono);color:var(--dim);margin:2px 0 6px">Dexs</div>
+      <div class="tvl-row"><span class="pn">PinkSale</span><span class="pv">$161.91M</span><span class="pc">Launchpad</span></div><div class="tvl-row"><span class="pn">DxSale</span><span class="pv">$19.41M</span><span class="pc">Launchpad</span></div><div class="tvl-row"><span class="pn">Aerodrome Ignition</span><span class="pv">$17.00M</span><span class="pc">Launchpad</span></div><div class="tvl-row"><span class="pn">Juicebox V1</span><span class="pv">$12.90M</span><span class="pc">Launchpad</span></div><div class="tvl-row"><span class="pn">NOXA Fun</span><span class="pv">$5.39M</span><span class="pc">Launchpad</span></div>
     </section>
 
-    <!-- HOTTEST GAINERS -->
+    <section class="tile s-memes">
+      <div class="tlabel"><span class="dot g"></span>Top memecoins by volume</div>
+      <div class="memes-wrap"><div class="meme-card"><div class="row1"><span class="sym">DOGE</span><span class="chain">bsc</span></div><div class="stats"><span>vol <b>$4.74M</b></span><span>24h <span class="pct up">+0.1%</span></span><span>mc <b>$230.84M</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/bsc/0xbA2aE424d960c26247Dd6c32edC70B295c744C43" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="0xbA2aE424d960c26247Dd6c32edC70B295c744C43" title="Copy contract address"><span>0xbA2a…4C43</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">POPCAT</span><span class="chain">solana</span></div><div class="stats"><span>vol <b>$1.48M</b></span><span>24h <span class="pct down">-69.4%</span></span><span>mc <b>$12.5K</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/solana/EUuwAs6yyxJ1xDZZpxvH5jVi8V6Gd1zgMopg2esypump" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="EUuwAs6yyxJ1xDZZpxvH5jVi8V6Gd1zgMopg2esypump" title="Copy contract address"><span>EUuwAs…pump</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">PEPE</span><span class="chain">ethereum</span></div><div class="stats"><span>vol <b>$1.24M</b></span><span>24h <span class="pct down">-0.3%</span></span><span>mc <b>$1.49B</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/ethereum/0x6982508145454Ce325dDbE47a25d4ec3d2311933" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="0x6982508145454Ce325dDbE47a25d4ec3d2311933" title="Copy contract address"><span>0x6982…1933</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">MOG</span><span class="chain">ethereum</span></div><div class="stats"><span>vol <b>$892.8K</b></span><span>24h <span class="pct up">+4.0%</span></span><span>mc <b>$45.22M</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/ethereum/0xaaeE1A9723aaDB7afA2810263653A34bA2C21C7a" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="0xaaeE1A9723aaDB7afA2810263653A34bA2C21C7a" title="Copy contract address"><span>0xaaeE…1C7a</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">TRUMP</span><span class="chain">solana</span></div><div class="stats"><span>vol <b>$735.9K</b></span><span>24h <span class="pct down">-0.4%</span></span><span>mc <b>$453.96M</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/solana/6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN" title="Copy contract address"><span>6p6xgH…GiPN</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">NEURON<span class="flag-new">NEW</span></span><span class="chain">robinhood</span></div><div class="stats"><span>vol <b>$603.0K</b></span><span>24h <span class="pct down">-44.2%</span></span><span>mc <b>$29.7K</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/robinhood/0xf8C6974A3C1820f87016Db03e43A2cbF10F585A6" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="0xf8C6974A3C1820f87016Db03e43A2cbF10F585A6" title="Copy contract address"><span>0xf8C6…85A6</span> <span class="copyok" style="display:none">✓</span></button></div></div></div>
+    </section>
+
     <section class="tile s-hot">
-      <div class="tlabel"><span class="dot"></span>Hottest memecoin gainers</div>
-      <div class="hot-tags" id="hotTags"></div>
+      <div class="tlabel"><span class="dot"></span>Hottest memecoin gainers (24h)</div>
+      <div class="memes-wrap"><div class="meme-card"><div class="row1"><span class="sym">WIF</span><span class="chain">robinhood</span></div><div class="stats"><span>vol <b>$80.1K</b></span><span>24h <span class="pct up">+94.1%</span></span><span>mc <b>$1.06M</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/robinhood/0x5173b8eA6923c2d40267890D45C46a3480954773" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="0x5173b8eA6923c2d40267890D45C46a3480954773" title="Copy contract address"><span>0x5173…4773</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">BITFART<span class="flag-new">NEW</span></span><span class="chain">solana</span></div><div class="stats"><span>vol <b>$246.8K</b></span><span>24h <span class="pct up">+86.6%</span></span><span>mc <b>$80.5K</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/solana/6zTgfUFjBAVywkEbXc4e1mFysNy4T4wJt7HCFiyXpump" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="6zTgfUFjBAVywkEbXc4e1mFysNy4T4wJt7HCFiyXpump" title="Copy contract address"><span>6zTgfU…pump</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">PANTHER<span class="flag-new">NEW</span></span><span class="chain">robinhood</span></div><div class="stats"><span>vol <b>$38.1K</b></span><span>24h <span class="pct up">+9.7%</span></span><span>mc <b>$47.2K</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/robinhood/0x97BafF797Fc44F3deBb50eb62e0E1175ca360000" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="0x97BafF797Fc44F3deBb50eb62e0E1175ca360000" title="Copy contract address"><span>0x97Ba…0000</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">MOG</span><span class="chain">ethereum</span></div><div class="stats"><span>vol <b>$892.8K</b></span><span>24h <span class="pct up">+4.0%</span></span><span>mc <b>$45.22M</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/ethereum/0xaaeE1A9723aaDB7afA2810263653A34bA2C21C7a" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="0xaaeE1A9723aaDB7afA2810263653A34bA2C21C7a" title="Copy contract address"><span>0xaaeE…1C7a</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">DOGE</span><span class="chain">bsc</span></div><div class="stats"><span>vol <b>$4.74M</b></span><span>24h <span class="pct up">+0.1%</span></span><span>mc <b>$230.84M</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/bsc/0xbA2aE424d960c26247Dd6c32edC70B295c744C43" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="0xbA2aE424d960c26247Dd6c32edC70B295c744C43" title="Copy contract address"><span>0xbA2a…4C43</span> <span class="copyok" style="display:none">✓</span></button></div></div><div class="meme-card"><div class="row1"><span class="sym">POPCAT</span><span class="chain">solana</span></div><div class="stats"><span>vol <b>$223.4K</b></span><span>24h <span class="pct up">+0.1%</span></span><span>mc <b>$51.00M</b></span></div><div class="actions"><a class="btn ds" href="https://dexscreener.com/solana/7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr" target="_blank" rel="noopener">Chart ↗</a><button class="btn ca" data-copy data-ca="7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr" title="Copy contract address"><span>7GCihg…W2hr</span> <span class="copyok" style="display:none">✓</span></button></div></div></div>
+    </section>
+
+    <section class="tile s-fomo">
+      <div class="tlabel"><span class="dot w"></span>FOMO retail-surge watch</div>
+      <div class="memes-wrap"><div class="fomo-empty">No token is in an active retail-FOMO surge right now. Watch triggers on real volume + heavy buy pressure on retail chains (solana / base / bsc / eth / monad).</div></div>
     </section>
 
   </div>
 
   <footer>
-    Snapshot from a live <b>tracker run</b> (2026-09-07 21:31 UTC). Public data via DeFiLlama + DexScreener · no API keys.
+    Snapshot from a live <b>tracker run</b> (2026-09-08 03:10 UTC). Public data via DeFiLlama + DexScreener · no API keys.
     &nbsp;·&nbsp; <a href="https://github.com/0x-m-dev/onchain-volume-tracker">GitHub repo</a>
-    &nbsp;·&nbsp; CLI: <a href="#">tracker run</a> / <a href="#">tracker memes</a>
   </footer>
 </div>
 
 <script>
-const M = n => n>=1e9 ? `$${(n/1e9).toFixed(2)}B` : n>=1e6 ? `$${(n/1e6).toFixed(1)}M` : `$${(n/1e3).toFixed(0)}K`;
-const pc = (v)=>{if(!v&&v!==0)return '<span class="flat">n/a</span>';const c=v>0?'up':v<0?'down':'flat';const s=v>0?'+':'';return `<span class="pct ${c}">${s}${v.toFixed(1)}%</span>`};
-
-// top 5 chains for hero bars (volume, change)
-const heroChains = [
-  {n:"Solana",v:2872025885,c:-1.1,cls:"sol"},
-  {n:"Robinhood Chain",v:1512225057,c:0.2},
-  {n:"BSC",v:1319006410,c:-10.3},
-  {n:"Ethereum",v:1299806260,c:42.7},
-  {n:"Base",v:902980782,c:11.9},
-];
-const maxV = Math.max(...heroChains.map(c=>c.v));
-document.getElementById("heroBars").innerHTML = heroChains.map(c=>{
-  const w = (c.v/maxV*100).toFixed(1);
-  return `<div class="bar-row"><span class="bn">${c.n}</span>
-    <div class="track"><div class="fill ${c.cls||''}" style="width:${w}%"></div></div>
-    <span class="bv">${M(c.v)} ${pc(c.c)}</span></div>`;
-}).join("");
-
-// memecoin money flow by chain
-const flow = [
-  {c:"bsc",v:5730000,n:4,top:"DOGE"},
-  {c:"solana",v:4780000,n:12,top:"POPCAT"},
-  {c:"ethereum",v:2260000,n:4,top:"PEPE"},
-  {c:"robinhood",v:1580000,n:7,top:"NEURON"},
-];
-const maxF = Math.max(...flow.map(f=>f.v));
-document.getElementById("flowList").innerHTML = flow.map(f=>`
-  <div class="flow-item"><div class="top"><span class="cn">${f.c}</span><span class="cv up">${M(f.v)}</span></div>
-  <div class="track"><div class="fill" style="width:${(f.v/maxF*100).toFixed(1)}%"></div></div>
-  <div class="sub2">${f.n} tokens · top ${f.top}</div></div>`).join("");
-
-// fomo surge
-const fomo = [
-  // none currently
-];
-const fb = document.getElementById("fomoBody");
-if(!fomo.length){
-  fb.innerHTML = '<div class="empty">No token is in an active retail-FOMO surge right now. Watch triggers on real volume + heavy buy pressure on retail chains (solana / base / bsc / eth / monad).</div>';
-}else{
-  fb.innerHTML = '<div class="fomo-row" style="border:0;padding-top:0"><b class="tag">Token</b><span>Chain</span><span>24h vol</span><span>24h</span><span>Buy</span></div>'+fomo.map(t=>`
-    <div class="fomo-row"><span class="tag">${t.n}</span><span class="ch">${t.c}</span><span>${M(t.v)}</span>${pc(t.chg)}<span class="up">${Math.round(t.buy*100)}%</span></div>`).join("");
+function copyCA(el){
+  const ca=el.getAttribute('data-ca');
+  const done=()=>{const o=el.innerHTML;el.innerHTML='<span style="color:var(--up)">✓ copied</span>';setTimeout(()=>el.innerHTML=o,1200);};
+  if(navigator.clipboard){navigator.clipboard.writeText(ca).then(done).catch(()=>{});
+  }else{const t=document.createElement('textarea');t.value=ca;document.body.appendChild(t);t.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}
 }
-
-// top memecoins
-const memes = [
-  {n:"DOGE",c:"bsc",v:4810000,chg:-0.1,mc:"$230.8M"},
-  {n:"POPCAT",c:"solana",v:1480000,chg:-71.5,mc:"$11.7K"},
-  {n:"PEPE",c:"ethereum",v:1230000,chg:-0.3,mc:"$1.49B"},
-  {n:"MOG",c:"ethereum",v:891600,chg:4.2,mc:"$45.3M"},
-  {n:"TRUMP",c:"solana",v:724700,chg:-0.2,mc:"$455.0M"},
-  {n:"NEURON",c:"robinhood",v:571100,chg:-36.2,mc:"$34.0K",nw:true},
-];
-document.getElementById("memesBody").innerHTML = memes.map(t=>`
-  <div class="meme-row"><span class="sym">${t.n}${t.nw?'<span class="flag-new">NEW</span>':''}</span><span class="ch">${t.c}</span><span>${M(t.v)}</span>${pc(t.chg)}<span class="mc">${t.mc}</span></div>`).join("");
-
-// infra tvl
-const tvl = [
-  {n:"PinkSale",c:"Launchpad",v:161900000},
-  {n:"DxSale",c:"Launchpad",v:19410000},
-  {n:"Aerodrome Ignition",c:"Launchpad",v:17000000},
-  {n:"Juicebox V1",c:"Launchpad",v:12900000},
-  {n:"four.meme",c:"Launchpad",v:4660000},
-];
-document.getElementById("tvlTop").innerHTML = M(tvl.length?tvl[0].v:0);
-document.getElementById("tvlBody").innerHTML = tvl.map(t=>`
-  <div class="tvl-row"><span class="pn">${t.n}</span><span style="text-align:right">${M(t.v)}</span><span class="pc">${t.c}</span><span class="pc"></span></div>`).join("");
-
-// hottest gainers (memecoin 24h price)
-const hot = [
-  {n:"MINER",s:"+894.0%",c:"solana"},
-  {n:"WIF",s:"+94.6%",c:"robinhood"},
-  {n:"EQUITY",s:"+9.9%",c:"robinhood",nw:true},
-  {n:"PANTHER",s:"+9.8%",c:"robinhood"},
-  {n:"MOG",s:"+4.2%",c:"ethereum"},
-];
-document.getElementById("hotTags").innerHTML = hot.map(t=>`
-  <div class="hot-tag"><span class="t">${t.n}${t.nw?'<span class="flag-new">NEW</span>':''}</span><span class="s">${t.s}</span><span class="c">${t.c}</span></div>`).join("");
+document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>copyCA(b)));
 </script>
 </body>
 </html>

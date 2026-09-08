@@ -55,10 +55,14 @@ tracker memes        # memecoin-only report
 
 https://0x-m-dev.github.io/onchain-volume-tracker/
 
-The Pages landing is a **bento-grid insights dashboard** snapshot (refreshed from
-live `tracker run` data): top chains by volume, chain movers, memecoin money
-flow, FOMO retail-surge watch, top memecoins, memecoin infra TVL, and hottest
-gainers.
+The Pages landing is a **bento-grid insights dashboard** snapshot: top chains by
+volume, chain movers, memecoin money flow, FOMO retail-surge watch, top memecoins,
+memecoin infra TVL, and hottest gainers. Every memecoin card links to its
+**DexScreener chart** and offers a **copyable contract address**.
+
+Auto-refresh: `scripts/refresh_site.py --commit` runs a live collection and
+regenerates + pushes `docs/index.html`. An hourly cron drives it (site updates ~
+each hour).
 
 ## Notes
 

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onchain Pulse — volume &amp; memecoin activity</title>
+<meta name="description" content="Live onchain snapshot: DEX volume, chain movers, memecoin money flow, FOMO retail surges, memecoin infra TVL.">
+<style>
+  :root{
+    --bg:#07090c; --panel:#0d1219; --panel2:#111821; --line:#1c2735; --line2:#27344a;
+    --text:#e7eef8; --muted:#8ea0b5; --dim:#5a6b80;
+    --up:#38d996; --down:#ff6b7a; --accent:#5ec4ff; --warn:#ffcf5e; --new:#c084fc;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:"IBM Plex Sans","Inter","Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:dark}
+  body{font-family:var(--sans);background:
+      radial-gradient(1100px 480px at 82% -12%, rgba(94,196,255,.07), transparent 55%),
+      radial-gradient(900px 420px at -8% 4%, rgba(56,217,150,.05), transparent 55%),var(--bg);
+    color:var(--text);line-height:1.45;min-height:100vh}
+  .wrap{max-width:1200px;margin:0 auto;padding:28px 20px 64px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .kicker{color:var(--accent);font:600 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+  h1{font-size:clamp(1.6rem,3.4vw,2.4rem);letter-spacing:-.03em;font-weight:700;margin:8px 0 4px}
+  .sub{color:var(--muted);font-size:14px;max-width:62ch}
+  .stamp{font:12px/1.5 var(--mono);color:var(--dim);text-align:right}
+  .stamp b{color:var(--muted);font-weight:600}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .chip{font:600 11px/1 var(--mono);letter-spacing:.04em;padding:5px 9px;border:1px solid var(--line2);border-radius:999px;color:var(--muted);background:rgba(17,24,33,.6)}
+  .chip b{color:var(--text);font-weight:600}
+
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(12,1fr)}
+  .tile{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:15px 17px;overflow:hidden}
+  .tlabel{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:7px;margin-bottom:11px}
+  .tlabel .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .tlabel .dot.g{background:var(--up);box-shadow:0 0 8px var(--up)}
+  .tlabel .dot.w{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+  .tlabel .dot.p{background:var(--new);box-shadow:0 0 8px var(--new)}
+
+  .s-hero{grid-column:span 5;grid-row:span 2}
+  .s-movers{grid-column:span 4;grid-row:span 2}
+  .s-flow{grid-column:span 3;grid-row:span 2}
+  .s-fomo{grid-column:span 7}
+  .s-memes{grid-column:span 5}
+  .s-tvl{grid-column:span 4}
+  .s-hot{grid-column:span 8}
+
+  .num{font:700 clamp(2rem,4vw,3.1rem)/1 var(--mono);letter-spacing:-.03em}
+  .hero-sub{color:var(--muted);font-size:13px;margin:8px 0 16px}
+  .bars{display:flex;flex-direction:column;gap:8px}
+  .bar-row{display:grid;grid-template-columns:118px 1fr 96px;align-items:center;gap:10px;font:12px/1 var(--mono)}
+  .bar-row .bn{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-row .bv{color:var(--muted);text-align:right}
+  .track{height:7px;background:#0a0f16;border-radius:6px;overflow:hidden}
+  .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#1d4e8a,#5ec4ff)}
+  .fill.sol{background:linear-gradient(90deg,#7b2fd6,#c084fc)}
+  .pct{font:600 11px var(--mono)}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--muted)}
+
+  .mover{padding:8px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .mover+.mover{border-top:1px solid var(--line)}
+  .mover .mn{font:600 14px var(--sans)}
+  .mover .md{font:700 15px var(--mono)}
+
+  .flow-list{display:flex;flex-direction:column;gap:11px}
+  .flow-item{display:flex;flex-direction:column;gap:5px}
+  .flow-item .top{display:flex;justify-content:space-between;align-items:baseline;font:13px var(--mono)}
+  .flow-item .cn{color:var(--text);text-transform:capitalize}
+  .flow-item .cv{font-weight:600;color:var(--up)}
+  .flow-item .sub2{color:var(--dim);font-size:11px;font-family:var(--mono)}
+
+  /* memecoin cards: clickable chart + copyable CA */
+  .memes-wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .meme-card{background:#0a0f16;border:1px solid var(--line);border-radius:12px;padding:11px 12px;display:flex;flex-direction:column;gap:8px}
+  .meme-card .row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .meme-card .sym{font:700 15px/1 var(--sans)}
+  .meme-card .chain{font:11px var(--mono);color:var(--dim);text-transform:capitalize}
+  .meme-card .stats{display:flex;justify-content:space-between;gap:8px;font:11px var(--mono);color:var(--muted);flex-wrap:wrap}
+  .meme-card .stats b{color:var(--text);font-weight:600}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:5px;font:600 11px/1 var(--mono);padding:6px 9px;border-radius:8px;text-decoration:none;cursor:pointer;letter-spacing:.02em}
+  .btn.ds{background:rgba(94,196,255,.12);color:var(--accent);border:1px solid rgba(94,196,255,.3)}
+  .btn.ds:hover{background:rgba(94,196,255,.2)}
+  .btn.ca{background:#0e141d;color:var(--muted);border:1px solid var(--line2);max-width:100%;overflow:hidden}
+  .btn.ca:hover{color:var(--text);border-color:#3a4d68}
+  .flag-new{color:var(--new);font:600 9px var(--mono);border:1px solid var(--line2);padding:1px 5px;border-radius:5px;letter-spacing:.06em}
+
+  .fomo-empty,.empty{color:var(--dim);font:13px/1.6 var(--sans);padding:8px 0}
+
+  .tvl-row{padding:7px 0;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;align-items:baseline;font:12px var(--mono)}
+  .tvl-row+.tvl-row{border-top:1px solid var(--line)}
+  .tvl-row .pn{font-weight:600;color:var(--text);grid-column:1}
+  .tvl-row .pv{color:var(--text);text-align:right;grid-column:1}
+  .tvl-row .pc{color:var(--dim);font-size:11px;grid-column:2;grid-row:1;text-align:right}
+  .tvl-row .sub2{color:var(--dim);font-size:11px;grid-column:2;grid-row:2;text-align:right}
+
+  footer{margin-top:22px;color:var(--dim);font:11px/1.7 var(--mono)}
+  footer a{color:var(--accent);text-decoration:none}
+
+  @media(max-width:1000px){.s-hero,.s-movers,.s-flow,.s-fomo,.s-memes,.s-tvl,.s-hot{grid-column:span 6}.grid{grid-template-columns:repeat(6,1fr)}}
+  @media(max-width:640px){.s-hero,.s-movers,.s-flow,.s-fomo,.s-memes,.s-tvl,.s-hot{grid-column:span 1}.grid{grid-template-columns:1fr}.memes-wrap{grid-template-columns:1fr}.wrap{padding:20px 14px 48px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker">0x-m-dev / onchain pulse</div>
+      <h1>Where crypto volume is moving</h1>
+      <p class="sub">Onchain DEX volume, chain movers, memecoin money flow and retail-FOMO surges — from free data. Tap <b>Chart</b> on any memecoin to open its DexScreener page, or copy its contract address into your own scanner.</p>
+      <div class="chips">
+        <span class="chip">chains <b>{n_chains}</b></span>
+        <span class="chip">protocols <b>{n_proto}</b></span>
+        <span class="chip">active memecoins <b>{n_memes}</b></span>
+      </div>
+    </div>
+    <div class="stamp">snapshot<br><b>{ts}</b></div>
+  </header>
+
+  <div class="grid">
+
+    <section class="tile s-hero">
+      <div class="tlabel"><span class="dot"></span>24h DEX volume — top chains</div>
+      <div class="num">{total_vol}</div>
+      <div class="hero-sub">across <span class="up">{n_tracked}</span> chains · <span class="up">{n_up} up</span> · <span style="color:var(--warn)">{n_anom} anomalies</span></div>
+      <div class="bars">{hero_bars}</div>
+    </section>
+
+    <section class="tile s-movers">
+      <div class="tlabel"><span class="dot g"></span>Chain movers (24h)</div>
+      <div style="margin-top:4px">{movers}</div>
+    </section>
+
+    <section class="tile s-flow">
+      <div class="tlabel"><span class="dot p"></span>Memecoin money flow</div>
+      <div class="flow-list">{flow}</div>
+    </section>
+
+    <section class="tile s-tvl">
+      <div class="tlabel"><span class="dot"></span>Memecoin infra TVL</div>
+      <div class="tvl-row" style="padding-top:2px;border-top:0;grid-template-columns:1fr auto">
+        <span class="pn" style="font-size:14px">{tvl_top_name}</span>
+        <span class="pv" style="color:var(--up);font-weight:700">{tvl_top_val}</span>
+      </div>
+      <div class="sub2" style="font:11px var(--mono);color:var(--dim);margin:2px 0 6px">{tvl_top_cat}</div>
+      {tvl_rows}
+    </section>
+
+    <section class="tile s-memes">
+      <div class="tlabel"><span class="dot g"></span>Top memecoins by volume</div>
+      <div class="memes-wrap">{memes}</div>
+    </section>
+
+    <section class="tile s-hot">
+      <div class="tlabel"><span class="dot"></span>Hottest memecoin gainers (24h)</div>
+      <div class="memes-wrap">{hot}</div>
+    </section>
+
+    <section class="tile s-fomo">
+      <div class="tlabel"><span class="dot w"></span>FOMO retail-surge watch</div>
+      <div class="memes-wrap">{fomo}</div>
+    </section>
+
+  </div>
+
+  <footer>
+    Snapshot from a live <b>tracker run</b> ({ts}). Public data via DeFiLlama + DexScreener · no API keys.
+    &nbsp;·&nbsp; <a href="https://github.com/0x-m-dev/onchain-volume-tracker">GitHub repo</a>
+  </footer>
+</div>
+
+<script>
+function copyCA(el){
+  const ca=el.getAttribute('data-ca');
+  const done=()=>{const o=el.innerHTML;el.innerHTML='<span style="color:var(--up)">✓ copied</span>';setTimeout(()=>el.innerHTML=o,1200);};
+  if(navigator.clipboard){navigator.clipboard.writeText(ca).then(done).catch(()=>{});
+  }else{const t=document.createElement('textarea');t.value=ca;document.body.appendChild(t);t.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}
+}
+document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>copyCA(b)));
+</script>
+</body>
+</html>

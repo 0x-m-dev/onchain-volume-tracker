@@ -1,188 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Onchain Volume Tracker</title>
-  <meta name="description" content="CLI that tracks onchain DeFi volume, memecoin activity, and where retail FOMO money is flowing — from free APIs.">
-  <style>
-    :root {
-      --bg: #07090c;
-      --panel: #10151c;
-      --line: #243042;
-      --text: #e7eef8;
-      --muted: #8ea0b5;
-      --up: #3dde9a;
-      --down: #ff6b7a;
-      --accent: #7dd3fc;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-      background:
-        radial-gradient(1200px 500px at 10% -10%, rgba(125, 211, 252, 0.12), transparent 50%),
-        var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-    main { max-width: 880px; margin: 0 auto; padding: 48px 20px 72px; }
-    .kicker {
-      color: var(--accent);
-      font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-    h1 { font-size: clamp(2rem, 5vw, 3.2rem); letter-spacing: -0.04em; margin: 12px 0 10px; }
-    .lede { color: var(--muted); max-width: 60ch; }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin: 32px 0;
-    }
-    .stat, .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-    }
-    .stat { padding: 16px; }
-    .stat b {
-      display: block;
-      font: 700 1.45rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
-    }
-    .stat span { color: var(--muted); font-size: 12px; }
-    .panel { padding: 8px 0; overflow: hidden; margin-top: 24px; }
-    .panel h2 { font-size: 13px; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; padding: 12px 16px 6px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 16px; text-align: left; font-size: 14px; }
-    th { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
-    td:nth-child(2), td:nth-child(3), th:nth-child(2), th:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; }
-    tr + tr td { border-top: 1px solid var(--line); }
-    .up { color: var(--up); }
-    .down { color: var(--down); }
-    pre {
-      margin-top: 28px;
-      background: #0b1016;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 16px 18px;
-      overflow-x: auto;
-      color: #d7e6f7;
-      font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
-    }
-    .links { display: flex; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
-    a { color: var(--accent); }
-    footer { margin-top: 36px; color: var(--muted); font-size: 12px; }
-    .tag { color: var(--accent); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onchain Pulse — volume &amp; memecoin activity</title>
+<meta name="description" content="Live onchain snapshot: DEX volume, chain movers, memecoin money flow, FOMO retail surges, memecoin infra TVL.">
+<style>
+  :root{
+    --bg:#07090c; --panel:#0d1219; --panel2:#111821; --line:#1c2735; --line2:#27344a;
+    --text:#e7eef8; --muted:#8ea0b5; --dim:#5a6b80;
+    --up:#38d996; --down:#ff6b7a; --accent:#5ec4ff; --warn:#ffcf5e; --new:#c084fc;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:"IBM Plex Sans","Inter","Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:dark}
+  body{
+    font-family:var(--sans);background:
+      radial-gradient(1100px 480px at 82% -12%, rgba(94,196,255,.07), transparent 55%),
+      radial-gradient(900px 420px at -8% 4%, rgba(56,217,150,.05), transparent 55%),
+      var(--bg);
+    color:var(--text);line-height:1.45;min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 64px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .kicker{color:var(--accent);font:600 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+  h1{font-size:clamp(1.6rem,3.4vw,2.4rem);letter-spacing:-.03em;font-weight:700;margin:8px 0 4px}
+  .sub{color:var(--muted);font-size:14px;max-width:60ch}
+  .stamp{font:12px/1.5 var(--mono);color:var(--dim);text-align:right}
+  .stamp b{color:var(--muted);font-weight:600}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .chip{font:600 11px/1 var(--mono);letter-spacing:.04em;padding:5px 9px;border:1px solid var(--line2);border-radius:999px;color:var(--muted);background:rgba(17,24,33,.6)}
+  .chip b{color:var(--text);font-weight:600}
+
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(12,1fr);grid-auto-rows:auto}
+  .tile{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative;overflow:hidden}
+  .tile .tlabel{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:7px;margin-bottom:12px}
+  .tlabel .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .tlabel .dot.g{background:var(--up);box-shadow:0 0 8px var(--up)}
+  .tlabel .dot.w{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+  .tlabel .dot.p{background:var(--new);box-shadow:0 0 8px var(--new)}
+
+  /* ---- spans ---- */
+  .s-hero{grid-column:span 5;grid-row:span 2}
+  .s-movers{grid-column:span 4;grid-row:span 2}
+  .s-flow{grid-column:span 3;grid-row:span 2}
+  .s-fomo{grid-column:span 6}
+  .s-memes{grid-column:span 6}
+  .s-tvl{grid-column:span 5}
+  .s-hot{grid-column:span 7}
+
+  .num{font:700 clamp(2rem,4vw,3.1rem)/1 var(--mono);letter-spacing:-.03em}
+  .num small{font:600 13px var(--mono);color:var(--muted);letter-spacing:0}
+  .hero-sub{color:var(--muted);font-size:13px;margin:8px 0 18px}
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar-row{display:grid;grid-template-columns:110px 1fr 78px;align-items:center;gap:10px;font:12px/1 var(--mono)}
+  .bar-row .bn{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-row .bv{color:var(--muted);text-align:right}
+  .track{height:7px;background:#0a0f16;border-radius:6px;overflow:hidden}
+  .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#1d4e8a,#5ec4ff)}
+  .fill.sol{background:linear-gradient(90deg,#7b2fd6,#c084fc)}
+  .pct{font:600 11px var(--mono)}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--muted)}
+
+  .mover{padding:8px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .mover+.mover{border-top:1px solid var(--line)}
+  .mover .mn{font:600 14px var(--sans)}
+  .mover .mv{font:12px var(--mono);color:var(--muted);white-space:nowrap}
+  .mover .md{font:700 15px var(--mono)}
+  .lead{font:700 17px var(--mono)}
+
+  .flow-list{display:flex;flex-direction:column;gap:10px}
+  .flow-item{display:flex;flex-direction:column;gap:5px}
+  .flow-item .top{display:flex;justify-content:space-between;align-items:baseline;font:13px var(--mono)}
+  .flow-item .cn{color:var(--text);text-transform:capitalize}
+  .flow-item .cv{font-weight:600}
+  .flow-item .sub2{color:var(--dim);font-size:11px;font-family:var(--mono)}
+
+  .fomo-row{padding:9px 0;display:grid;grid-template-columns:110px 90px 1fr 90px 70px;gap:10px;align-items:center;font:13px var(--mono)}
+  .fomo-row+.fomo-row{border-top:1px solid var(--line)}
+  .empty{color:var(--dim);font:13px/1.6 var(--sans);padding:10px 0}
+  .tag{font-weight:700;letter-spacing:.01em}
+  .flag-new{color:var(--new);font:600 9px var(--mono);border:1px solid var(--line2);padding:1px 5px;border-radius:5px;margin-left:6px;letter-spacing:.06em}
+
+  .meme-row{padding:7px 0;display:grid;grid-template-columns:120px 100px 1fr 90px 80px;gap:10px;align-items:center;font:13px var(--mono)}
+  .meme-row+.meme-row{border-top:1px solid var(--line)}
+  .meme-row .sym{font-weight:700}
+  .meme-row .ch{font:12px var(--mono);color:var(--dim)}
+  .meme-row .mc{font:12px var(--mono);color:var(--dim);text-align:right}
+
+  .tvl-row{padding:7px 0;display:grid;grid-template-columns:1fr 90px 80px 70px;gap:10px;align-items:center;font:13px var(--mono)}
+  .tvl-row+.tvl-row{border-top:1px solid var(--line)}
+  .tvl-row .pn{font-weight:600;color:var(--text)}
+  .tvl-row .pc{font:11px var(--mono);color:var(--dim)}
+
+  .hot-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .hot-tag{display:flex;flex-direction:column;gap:3px;background:#0a0f16;border:1px solid var(--line);padding:10px 13px;border-radius:11px;font:12px var(--mono)}
+  .hot-tag .t{font-weight:700;font-size:14px}
+  .hot-tag .s{color:var(--up);font-weight:600}
+  .hot-tag .c{color:var(--dim);font-size:11px}
+
+  footer{margin-top:22px;color:var(--dim);font:11px/1.7 var(--mono)}
+  footer a{color:var(--accent);text-decoration:none}
+
+  @media(max-width:980px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .s-hero,.s-movers,.s-flow,.s-fomo,.s-memes,.s-tvl,.s-hot{grid-column:span 2}
+  }
+  @media(max-width:560px){
+    .grid{grid-template-columns:1fr}
+    .s-hero,.s-movers,.s-flow,.s-fomo,.s-memes,.s-tvl,.s-hot{grid-column:span 1}
+    .wrap{padding:20px 14px 48px}
+    .fomo-row,.meme-row{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+  }
+</style>
 </head>
 <body>
-  <main>
-    <p class="kicker">0x-m-dev / CLI</p>
-    <h1>Onchain Volume Tracker</h1>
-    <p class="lede">
-      Python CLI that pulls free DeFiLlama and DexScreener data, stores history in SQLite,
-      ranks chains by volume/growth, and tracks <b>memecoin activity</b> — where money is
-      flowing, what's heating up in volume/TVL, and a <b>FOMO retail-surge watch</b>.
-      No API keys for v1.
-    </p>
-    <section class="stats" aria-label="Last live snapshot">
-      <div class="stat"><b>466</b><span>chains stored</span></div>
-      <div class="stat"><b>8,196</b><span>protocols stored</span></div>
-      <div class="stat"><b>40</b><span>active memecoins (24h vol &gt; $25k)</span></div>
-      <div class="stat"><b>$4.5B+</b><span>top-chain 24h DEX volume</span></div>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker">0x-m-dev / onchain pulse</div>
+      <h1>Where crypto volume is moving</h1>
+      <p class="sub">Onchain DEX volume, chain movers, memecoin money flow, retail-FOMO surges and memecoin infra TVL — one live snapshot from free data.</p>
+      <div class="chips">
+        <span class="chip">chains <b>466</b></span>
+        <span class="chip">protocols <b>8,200</b></span>
+        <span class="chip">active memecoins <b>41</b></span>
+        <span class="chip">dex pairs <b>50</b></span>
+      </div>
+    </div>
+    <div class="stamp">snapshot<br><b>2026-09-07 21:31 UTC</b></div>
+  </header>
+
+  <div class="grid">
+
+    <!-- HERO: total volume -->
+    <section class="tile s-hero">
+      <div class="tlabel"><span class="dot"></span>24h DEX volume — top chains</div>
+      <div class="num" id="totVol">$9.37B</div>
+      <div class="hero-sub">across <span class="up">19</span> chains · <span class="flat">5</span> up · <span class="down">4</span> anomalies</div>
+      <div class="bars" id="heroBars"></div>
     </section>
 
-    <section class="panel">
-      <h2>🔥 Top chains by 24h volume</h2>
-      <table>
-        <thead><tr><th>Chain</th><th>24h volume</th><th>24h change</th></tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
+    <!-- MOVERS -->
+    <section class="tile s-movers">
+      <div class="tlabel"><span class="dot g"></span>Chain movers (24h)</div>
+      <div style="margin-top:4px">
+        <div class="mover"><span class="mn">Monad</span><span class="md up">+555.3%</span></div>
+        <div class="mover"><span class="mn">Stellar</span><span class="md up">+169.0%</span></div>
+        <div class="mover"><span class="mn">Avalanche</span><span class="md up">+150.0%</span></div>
+        <div class="mover"><span class="mn">Ethereum</span><span class="md up">+42.7%</span></div>
+      </div>
+      <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:6px" class="mover"><span class="mn">Cronos</span><span class="md down">-37.6%</span></div>
+      <div class="mover"><span class="mn">Arbitrum</span><span class="md down">-19.4%</span></div>
+      <div class="mover"><span class="mn">Hyperliquid L1</span><span class="md down">-15.7%</span></div>
     </section>
 
-    <section class="panel">
-      <h2>💰 Where memecoin money is flowing</h2>
-      <table>
-        <thead><tr><th>Chain</th><th>Memecoin volume</th><th>Tokens</th></tr></thead>
-        <tbody id="flow"></tbody>
-      </table>
+    <!-- MONEY FLOW -->
+    <section class="tile s-flow">
+      <div class="tlabel"><span class="dot p"></span>Memecoin money flow</div>
+      <div class="flow-list" id="flowList"></div>
     </section>
 
-    <section class="panel">
-      <h2>⚡ FOMO retail surge watch</h2>
-      <table>
-        <thead><tr><th>Token</th><th>Chain</th><th>24h vol</th><th>24h</th><th>Buy</th></tr></thead>
-        <tbody id="fomo"></tbody>
-      </table>
+    <!-- FOMO SURGE -->
+    <section class="tile s-fomo">
+      <div class="tlabel"><span class="dot w"></span>FOMO retail-surge watch</div>
+      <div id="fomoBody"></div>
     </section>
 
-    <section class="panel">
-      <h2>🐸 Top memecoins by volume</h2>
-      <table>
-        <thead><tr><th>Token</th><th>Chain</th><th>24h vol</th><th>24h</th></tr></thead>
-        <tbody id="memes"></tbody>
-      </table>
+    <!-- TOP MEMECOINS -->
+    <section class="tile s-memes">
+      <div class="tlabel"><span class="dot g"></span>Top memecoins by volume</div>
+      <div id="memesBody"></div>
     </section>
 
-    <pre>python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[dev]"
-make test
-tracker run
-tracker memes
-tracker wallet &lt;ADDR&gt;</pre>
-    <p class="links">
-      <a href="https://github.com/0x-m-dev/onchain-volume-tracker">GitHub repo</a>
-      <a href="https://github.com/0x-m-dev/onchain-volume-tracker#run--verify">Run / verify</a>
-    </p>
-    <footer>Snapshot from a live collector run on 2026-09-07 21:00 UTC. Static GitHub Pages preview; scheduling is off.</footer>
-  </main>
-  <script>
-    const chains = [
-      ["Solana", 2904503252, 55.8],
-      ["Robinhood Chain", 1509793445, -6.4],
-      ["BSC", 1470368164, -8.0],
-      ["Ethereum", 910785408, 9.1],
-      ["Base", 806560266, 47.1],
-      ["Hyperliquid L1", 310475598, 33.1],
-      ["Arbitrum", 185037293, 64.3],
-      ["Polygon", 170080531, 2.9],
-      ["Avalanche", 96076451, 10.9],
-      ["Monad", 78252593, 38.3]
-    ];
-    const flow = [
-      ["BSC", 14950000, 4],
-      ["Solana", 5810000, 11],
-      ["Ethereum", 2270000, 5],
-      ["Robinhood Chain", 2200000, 7]
-    ];
-    const fomo = [
-      ["POPCAT", "solana", 1400000, 31.6, 0.55],
-      ["USDG", "solana", 428500, 140.0, 0.92]
-    ];
-    const memes = [
-      ["DOGE", "bsc", 8750000, 0.1],
-      ["POPCAT", "solana", 1400000, 31.6],
-      ["LUCKY", "robinhood", 1260000, 2911.0],
-      ["PEPE", "ethereum", 1150000, 0.6],
-      ["MOG", "ethereum", 917500, 7.0],
-      ["TRUMP", "solana", 752100, -2.5],
-      ["CAVIAR", "solana", 735500, 383.0],
-      ["BONK", "solana", 560100, -7.2],
-      ["SHIB", "bsc", 431500, 0.2]
-    ];
-    const money = n => n >= 1e9 ? `$${(n/1e9).toFixed(2)}B` : n >= 1e6 ? `$${(n/1e6).toFixed(2)}M` : `$${(n/1e3).toFixed(1)}K`;
-    const pct = (n, suffix) => { const cls = n > 0 ? "up" : "down"; const s = n > 0 ? "+" : ""; return `<td class="${cls}">${s}${n.toFixed(1)}${suffix||""}</td>`; };
-    document.getElementById("rows").innerHTML = chains.map(([n,v,c]) =>
-      `<tr><td>${n}</td><td>${money(v)}</td>${pct(c,"%")}</tr>`).join("");
-    document.getElementById("flow").innerHTML = flow.map(([n,v,t]) =>
-      `<tr><td>${n}</td><td>${money(v)}</td><td>${t}</td></tr>`).join("");
-    document.getElementById("fomo").innerHTML = fomo.map(([n,c,v,chg,b]) =>
-      `<tr><td><span class="tag">${n}</span></td><td>${c}</td><td>${money(v)}</td>${pct(chg,"%")}<td>${Math.round(b*100)}%</td></tr>`).join("");
-    document.getElementById("memes").innerHTML = memes.map(([n,c,v,chg]) =>
-      `<tr><td>${n}</td><td>${c}</td><td>${money(v)}</td>${pct(chg,"%")}</tr>`).join("");
-  </script>
+    <!-- INFRA TVL -->
+    <section class="tile s-tvl">
+      <div class="tlabel"><span class="dot"></span>Memecoin infra TVL</div>
+      <div class="tvl-row" style="padding-top:0;border-top:0"><span class="pn">PumpSwap</span><span class="cv" id="tvlTop"></span><span class="pc">Dexs</span><span class="pc">$343.3M</span></div>
+      <div id="tvlBody"></div>
+    </section>
+
+    <!-- HOTTEST GAINERS -->
+    <section class="tile s-hot">
+      <div class="tlabel"><span class="dot"></span>Hottest memecoin gainers</div>
+      <div class="hot-tags" id="hotTags"></div>
+    </section>
+
+  </div>
+
+  <footer>
+    Snapshot from a live <b>tracker run</b> (2026-09-07 21:31 UTC). Public data via DeFiLlama + DexScreener · no API keys.
+    &nbsp;·&nbsp; <a href="https://github.com/0x-m-dev/onchain-volume-tracker">GitHub repo</a>
+    &nbsp;·&nbsp; CLI: <a href="#">tracker run</a> / <a href="#">tracker memes</a>
+  </footer>
+</div>
+
+<script>
+const M = n => n>=1e9 ? `$${(n/1e9).toFixed(2)}B` : n>=1e6 ? `$${(n/1e6).toFixed(1)}M` : `$${(n/1e3).toFixed(0)}K`;
+const pc = (v)=>{if(!v&&v!==0)return '<span class="flat">n/a</span>';const c=v>0?'up':v<0?'down':'flat';const s=v>0?'+':'';return `<span class="pct ${c}">${s}${v.toFixed(1)}%</span>`};
+
+// top 5 chains for hero bars (volume, change)
+const heroChains = [
+  {n:"Solana",v:2872025885,c:-1.1,cls:"sol"},
+  {n:"Robinhood Chain",v:1512225057,c:0.2},
+  {n:"BSC",v:1319006410,c:-10.3},
+  {n:"Ethereum",v:1299806260,c:42.7},
+  {n:"Base",v:902980782,c:11.9},
+];
+const maxV = Math.max(...heroChains.map(c=>c.v));
+document.getElementById("heroBars").innerHTML = heroChains.map(c=>{
+  const w = (c.v/maxV*100).toFixed(1);
+  return `<div class="bar-row"><span class="bn">${c.n}</span>
+    <div class="track"><div class="fill ${c.cls||''}" style="width:${w}%"></div></div>
+    <span class="bv">${M(c.v)} ${pc(c.c)}</span></div>`;
+}).join("");
+
+// memecoin money flow by chain
+const flow = [
+  {c:"bsc",v:5730000,n:4,top:"DOGE"},
+  {c:"solana",v:4780000,n:12,top:"POPCAT"},
+  {c:"ethereum",v:2260000,n:4,top:"PEPE"},
+  {c:"robinhood",v:1580000,n:7,top:"NEURON"},
+];
+const maxF = Math.max(...flow.map(f=>f.v));
+document.getElementById("flowList").innerHTML = flow.map(f=>`
+  <div class="flow-item"><div class="top"><span class="cn">${f.c}</span><span class="cv up">${M(f.v)}</span></div>
+  <div class="track"><div class="fill" style="width:${(f.v/maxF*100).toFixed(1)}%"></div></div>
+  <div class="sub2">${f.n} tokens · top ${f.top}</div></div>`).join("");
+
+// fomo surge
+const fomo = [
+  // none currently
+];
+const fb = document.getElementById("fomoBody");
+if(!fomo.length){
+  fb.innerHTML = '<div class="empty">No token is in an active retail-FOMO surge right now. Watch triggers on real volume + heavy buy pressure on retail chains (solana / base / bsc / eth / monad).</div>';
+}else{
+  fb.innerHTML = '<div class="fomo-row" style="border:0;padding-top:0"><b class="tag">Token</b><span>Chain</span><span>24h vol</span><span>24h</span><span>Buy</span></div>'+fomo.map(t=>`
+    <div class="fomo-row"><span class="tag">${t.n}</span><span class="ch">${t.c}</span><span>${M(t.v)}</span>${pc(t.chg)}<span class="up">${Math.round(t.buy*100)}%</span></div>`).join("");
+}
+
+// top memecoins
+const memes = [
+  {n:"DOGE",c:"bsc",v:4810000,chg:-0.1,mc:"$230.8M"},
+  {n:"POPCAT",c:"solana",v:1480000,chg:-71.5,mc:"$11.7K"},
+  {n:"PEPE",c:"ethereum",v:1230000,chg:-0.3,mc:"$1.49B"},
+  {n:"MOG",c:"ethereum",v:891600,chg:4.2,mc:"$45.3M"},
+  {n:"TRUMP",c:"solana",v:724700,chg:-0.2,mc:"$455.0M"},
+  {n:"NEURON",c:"robinhood",v:571100,chg:-36.2,mc:"$34.0K",nw:true},
+];
+document.getElementById("memesBody").innerHTML = memes.map(t=>`
+  <div class="meme-row"><span class="sym">${t.n}${t.nw?'<span class="flag-new">NEW</span>':''}</span><span class="ch">${t.c}</span><span>${M(t.v)}</span>${pc(t.chg)}<span class="mc">${t.mc}</span></div>`).join("");
+
+// infra tvl
+const tvl = [
+  {n:"PinkSale",c:"Launchpad",v:161900000},
+  {n:"DxSale",c:"Launchpad",v:19410000},
+  {n:"Aerodrome Ignition",c:"Launchpad",v:17000000},
+  {n:"Juicebox V1",c:"Launchpad",v:12900000},
+  {n:"four.meme",c:"Launchpad",v:4660000},
+];
+document.getElementById("tvlTop").innerHTML = M(tvl.length?tvl[0].v:0);
+document.getElementById("tvlBody").innerHTML = tvl.map(t=>`
+  <div class="tvl-row"><span class="pn">${t.n}</span><span style="text-align:right">${M(t.v)}</span><span class="pc">${t.c}</span><span class="pc"></span></div>`).join("");
+
+// hottest gainers (memecoin 24h price)
+const hot = [
+  {n:"MINER",s:"+894.0%",c:"solana"},
+  {n:"WIF",s:"+94.6%",c:"robinhood"},
+  {n:"EQUITY",s:"+9.9%",c:"robinhood",nw:true},
+  {n:"PANTHER",s:"+9.8%",c:"robinhood"},
+  {n:"MOG",s:"+4.2%",c:"ethereum"},
+];
+document.getElementById("hotTags").innerHTML = hot.map(t=>`
+  <div class="hot-tag"><span class="t">${t.n}${t.nw?'<span class="flag-new">NEW</span>':''}</span><span class="s">${t.s}</span><span class="c">${t.c}</span></div>`).join("");
+</script>
 </body>
 </html>
